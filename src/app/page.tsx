@@ -1,80 +1,47 @@
-export default function LandingPage() {
+import { createClient } from '@/lib/supabase/server'
+import { LandingPageClient } from './landing-page-client'
+import type { Tables } from '@/lib/supabase/database.types'
+
+type Event = Tables<'events'>
+
+// Hardcoded categories for landing page
+const categories = [
+  { id: '1', name: 'Technology', slug: 'technology', description: 'Tech conferences, workshops, and meetups' },
+  { id: '2', name: 'Music', slug: 'music', description: 'Concerts, festivals, and live music events' },
+  { id: '3', name: 'Sports', slug: 'sports', description: 'Sports events, tournaments, and fitness activities' },
+  { id: '4', name: 'Arts & Culture', slug: 'arts-culture', description: 'Art exhibitions, theater shows, and cultural events' },
+  { id: '5', name: 'Food & Drink', slug: 'food-drink', description: 'Food festivals, wine tastings, and culinary events' },
+  { id: '6', name: 'Business', slug: 'business', description: 'Professional conferences, networking, and seminars' },
+  { id: '7', name: 'Health & Wellness', slug: 'health-wellness', description: 'Yoga, meditation, and wellness workshops' },
+  { id: '8', name: 'Education', slug: 'education', description: 'Workshops, classes, and educational seminars' }
+]
+
+async function getFeaturedEvents(): Promise<Event[]> {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .eq('is_published', true)
+    .eq('is_featured', true)
+    .order('created_at', { ascending: false })
+    .limit(6)
+
+  if (error) {
+    console.error('Error fetching featured events:', error)
+    return []
+  }
+
+  return data || []
+}
+
+export default async function LandingPage() {
+  const featuredEvents = await getFeaturedEvents()
+  
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-600 to-primary-700 py-20">
-        <div className="max-w-7xl mx-auto px-4 text-center text-white">
-          <h1 className="text-display-lg font-bold mb-6">
-            Discover Amazing Events
-          </h1>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Find concerts, workshops, conferences and more happening near you
-          </p>
-          
-          {/* Search Bar - Placeholder for now */}
-          <div className="max-w-md mx-auto">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search events..."
-                className="w-full px-4 py-3 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Categories Section - Placeholder */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-display-sm font-bold mb-8 text-center">
-            Browse by Category
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {['Music', 'Technology', 'Sports', 'Arts'].map((category) => (
-              <div
-                key={category}
-                className="h-20 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-300 transition-colors"
-              >
-                <div className="w-6 h-6 rounded bg-primary-500 mb-2" />
-                {category}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Events Section - Placeholder */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-display-sm font-bold">Featured Events</h2>
-            <a href="/events" className="text-primary-600 hover:text-primary-700 font-medium">
-              View All Events →
-            </a>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-lg border border-gray-200 p-6">
-                <div className="aspect-video bg-gray-200 rounded mb-4 flex items-center justify-center">
-                  <span className="text-gray-500">Event {i} Image</span>
-                </div>
-                <h3 className="font-semibold mb-2">Sample Event {i}</h3>
-                <p className="text-gray-600 text-sm mb-4">
-                  This is a placeholder for event description...
-                </p>
-                <div className="flex justify-between items-center">
-                  <span className="font-bold text-primary-600">₹500</span>
-                  <button className="px-4 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50">
-                    View Details
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    </div>
-  );
+    <LandingPageClient 
+      featuredEvents={featuredEvents}
+      categories={categories}
+    />
+  )
 }
