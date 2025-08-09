@@ -221,9 +221,9 @@ export const Button = ({
             {...props}
             className={cx(
                 styles.common.root,
-                styles.sizes[size].root,
-                styles.colors[color].root,
-                isLinkType && styles.sizes[size].linkRoot,
+                styles.sizes[size]?.root,
+                styles.colors[color]?.root || styles.colors.primary.root,
+                isLinkType && styles.sizes[size]?.linkRoot,
                 (loading || (href && (disabled || loading))) && "pointer-events-none",
                 // If in `loading` state, hide everything except the loading icon (and text if `showTextWhileLoading` is true).
                 loading && (showTextWhileLoading ? "[&>*:not([data-icon=loading]):not([data-text])]:hidden" : "[&>*:not([data-icon=loading])]:invisible"),

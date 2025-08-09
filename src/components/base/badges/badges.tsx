@@ -86,13 +86,7 @@ const withPillTypes = {
     },
     [badgeTypes.badgeModern]: {
         common: "size-max flex items-center whitespace-nowrap rounded-md ring-1 ring-inset shadow-xs",
-        styles: {
-            gray: {
-                root: "bg-primary text-secondary ring-primary",
-                addon: "text-gray-500",
-                addonButton: "hover:bg-utility-gray-100 text-utility-gray-400 hover:text-utility-gray-500",
-            },
-        },
+        styles: addonOnlyColors,
     },
 };
 
@@ -142,7 +136,10 @@ export const Badge = <T extends BadgeTypes>(props: BadgeProps<T>) => {
         [badgeTypes.badgeModern]: badgeSizes,
     };
 
-    return <span className={cx(colors.common, sizes[type][size], colors.styles[color].root, props.className)}>{children}</span>;
+    // Fallback to gray if color is invalid
+    const safeColor = colors.styles[color] ? color : "gray";
+
+    return <span className={cx(colors.common, sizes[type][size], colors.styles[safeColor].root, props.className)}>{children}</span>;
 };
 
 interface BadgeWithDotProps<T extends BadgeTypes> {
@@ -176,9 +173,12 @@ export const BadgeWithDot = <T extends BadgeTypes>(props: BadgeWithDotProps<T>) 
         [badgeTypes.badgeModern]: badgeSizes,
     };
 
+    // Fallback to gray if color is invalid
+    const safeColor = colors.styles[color] ? color : "gray";
+
     return (
-        <span className={cx(colors.common, sizes[type][size], colors.styles[color].root, className)}>
-            <Dot className={colors.styles[color].addon} size="sm" />
+        <span className={cx(colors.common, sizes[type][size], colors.styles[safeColor].root, className)}>
+            <Dot className={colors.styles[safeColor].addon} size="sm" />
             {children}
         </span>
     );
@@ -236,11 +236,14 @@ export const BadgeWithIcon = <T extends BadgeTypes>(props: BadgeWithIconProps<T>
         [badgeTypes.badgeModern]: badgeSizes,
     };
 
+    // Fallback to gray if color is invalid
+    const safeColor = colors.styles[color] ? color : "gray";
+
     return (
-        <span className={cx(colors.common, sizes[type][size][icon], colors.styles[color].root, className)}>
-            {IconLeading && <IconLeading className={cx(colors.styles[color].addon, "size-3 stroke-3")} />}
+        <span className={cx(colors.common, sizes[type][size][icon], colors.styles[safeColor].root, className)}>
+            {IconLeading && <IconLeading className={cx(colors.styles[safeColor].addon, "size-3 stroke-3")} />}
             {children}
-            {IconTrailing && <IconTrailing className={cx(colors.styles[color].addon, "size-3 stroke-3")} />}
+            {IconTrailing && <IconTrailing className={cx(colors.styles[safeColor].addon, "size-3 stroke-3")} />}
         </span>
     );
 };
@@ -275,8 +278,11 @@ export const BadgeWithFlag = <T extends BadgeTypes>(props: BadgeWithFlagProps<T>
         [badgeTypes.badgeModern]: badgeSizes,
     };
 
+    // Fallback to gray if color is invalid
+    const safeColor = colors.styles[color] ? color : "gray";
+
     return (
-        <span className={cx(colors.common, sizes[type][size], colors.styles[color].root)}>
+        <span className={cx(colors.common, sizes[type][size], colors.styles[safeColor].root)}>
             <img src={`https://www.untitledui.com/images/flags/${flag}.svg`} className="size-4 max-w-none rounded-full" alt={`${flag} flag`} />
             {children}
         </span>
@@ -313,8 +319,11 @@ export const BadgeWithImage = <T extends BadgeTypes>(props: BadgeWithImageProps<
         [badgeTypes.badgeModern]: badgeSizes,
     };
 
+    // Fallback to gray if color is invalid
+    const safeColor = colors.styles[color] ? color : "gray";
+
     return (
-        <span className={cx(colors.common, sizes[type][size], colors.styles[color].root)}>
+        <span className={cx(colors.common, sizes[type][size], colors.styles[safeColor].root)}>
             <img src={imgSrc} className="size-4 max-w-none rounded-full" alt="Badge image" />
             {children}
         </span>
@@ -359,8 +368,12 @@ export const BadgeWithButton = <T extends BadgeTypes>(props: BadgeWithButtonProp
         [badgeTypes.badgeModern]: badgeSizes,
     };
 
+    // Fallback to gray if color is invalid
+    const safeColor = colors.styles[color] ? color : "gray";
+    const colorStyle = colors.styles[safeColor];
+
     return (
-        <span className={cx(colors.common, sizes[type][size], colors.styles[color].root)}>
+        <span className={cx(colors.common, sizes[type][size], colorStyle.root)}>
             {children}
             <button
                 type="button"
@@ -368,7 +381,7 @@ export const BadgeWithButton = <T extends BadgeTypes>(props: BadgeWithButtonProp
                 onClick={props.onButtonClick}
                 className={cx(
                     "flex cursor-pointer items-center justify-center p-0.5 outline-focus-ring transition duration-100 ease-linear focus-visible:outline-2",
-                    colors.styles[color].addonButton,
+                    'addonButton' in colorStyle ? colorStyle.addonButton : colorStyle.addon,
                     type === "pill-color" ? "rounded-full" : "rounded-[3px]",
                 )}
             >
@@ -409,9 +422,12 @@ export const BadgeIcon = <T extends BadgeTypes>(props: BadgeIconProps<T>) => {
         [badgeTypes.badgeModern]: badgeSizes,
     };
 
+    // Fallback to gray if color is invalid
+    const safeColor = colors.styles[color] ? color : "gray";
+
     return (
-        <span className={cx(colors.common, sizes[type][size], colors.styles[color].root)}>
-            <Icon className={cx("size-3 stroke-[3px]", colors.styles[color].addon)} />
+        <span className={cx(colors.common, sizes[type][size], colors.styles[safeColor].root)}>
+            <Icon className={cx("size-3 stroke-[3px]", colors.styles[safeColor].addon)} />
         </span>
     );
 };

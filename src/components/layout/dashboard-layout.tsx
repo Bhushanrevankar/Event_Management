@@ -127,7 +127,7 @@ export function DashboardLayout({ children, sidebar = 'attendee' }: DashboardLay
                 <div className="flex items-center w-full">
                   <Avatar
                     src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
-                    name="Demo User"
+                    initials="DU"
                     size="sm"
                   />
                   <div className="ml-3 flex-1">
@@ -135,7 +135,7 @@ export function DashboardLayout({ children, sidebar = 'attendee' }: DashboardLay
                     <p className="text-xs text-gray-500">demo@example.com</p>
                   </div>
                   <Button
-                    variant="ghost"
+                    color="tertiary"
                     size="sm"
                     iconLeading={LogOut01}
                     onClick={() => alert('Logout functionality coming soon')}

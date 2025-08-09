@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/base/input/input';
 import { Button } from '@/components/base/buttons/button';
 import { UntitledLogoMinimal } from '@/components/foundations/logo/untitledui-logo-minimal';
@@ -22,17 +23,54 @@ export default function SignInPage() {
     setError('');
 
     try {
-      // This is a placeholder - in production, this would use Supabase auth
-      if (email && password) {
-        // Simulate successful login
-        setTimeout(() => {
-          router.push(redirectTo);
-        }, 1000);
-      } else {
-        throw new Error('Please fill in all fields');
+      const supabase = createClient();
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
+      if (data.user) {
+        // Check if user has a profile, if not redirect to complete profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
+        if (!profile) {
+          // Create a basic profile
+          await supabase
+            .from('profiles')
+            .insert([
+              {
+                id: data.user.id,
+                email: data.user.email || '',
+                full_name: data.user.user_metadata?.full_name || '',
+                role: 'attendee'
+              }
+            ]);
+        }
+
+        // Redirect based on user role
+        const userRole = profile?.role || 'attendee';
+        let redirectPath = redirectTo;
+        
+        if (redirectTo === '/dashboard') {
+          redirectPath = userRole === 'admin' ? '/admin' : `/dashboard/${userRole}`;
+        }
+        
+        router.push(redirectPath);
+        router.refresh(); // Refresh to update auth state
       }
     } catch (error: any) {
-      setError(error.message);
+      console.error('Sign in error:', error);
+      setError('An unexpected error occurred');
     } finally {
       setLoading(false);
     }

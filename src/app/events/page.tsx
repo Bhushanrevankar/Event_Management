@@ -1,248 +1,109 @@
-'use client';
+import { Suspense } from 'react'
+import { createClient } from '@/lib/supabase/server'
+import { EventsPageClient } from '@/components/events/events-page-client'
+import type { Tables } from '@/lib/supabase/database.types'
 
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { EventList } from '@/components/events/event-list';
-import { Input } from '@/components/base/input/input';
-import { Select } from '@/components/base/select/select';
-import { Button } from '@/components/base/buttons/button';
+type Event = Tables<'events'> & {
+  profiles: Tables<'profiles'> | null
+}
 
-export default function EventsPage() {
-  const searchParams = useSearchParams();
-  const [filters, setFilters] = useState({
-    search: searchParams.get('search') || '',
-    category: searchParams.get('category') || '',
-    location: '',
-    dateFrom: '',
-    dateTo: '',
-    priceMin: 0,
-    priceMax: 10000
-  });
+async function getEvents(searchParams: Record<string, string>): Promise<{
+  events: Event[]
+  total: number
+}> {
+  const supabase = await createClient()
+  
+  let query = supabase
+    .from('events')
+    .select(`
+      *,
+      profiles (*)
+    `)
+    .eq('is_published', true)
 
-  // Placeholder data - this would come from Supabase in production
-  const [events] = useState([
-    {
-      id: '1',
-      title: 'Tech Conference 2024',
-      description: 'Join industry leaders for the biggest tech event of the year. Learn about AI, blockchain, and the future of technology.',
-      featured_image_url: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop',
-      start_date: '2024-03-15T10:00:00Z',
-      venue_name: 'Convention Center, Mumbai',
-      base_price: 2500,
-      currency: 'INR',
-      is_featured: true,
-      slug: 'tech-conference-2024',
-      category: {
-        name: 'Technology',
-        color_hex: '#3B82F6'
-      },
-      organizer: {
-        full_name: 'TechEvents India',
-        avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face'
-      }
-    },
-    {
-      id: '2',
-      title: 'Classical Music Evening',
-      description: 'An enchanting evening of classical music featuring renowned artists from around the world.',
-      featured_image_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop',
-      start_date: '2024-03-20T19:00:00Z',
-      venue_name: 'Music Hall, Delhi',
-      base_price: 800,
-      currency: 'INR',
-      is_featured: false,
-      slug: 'classical-music-evening',
-      category: {
-        name: 'Music',
-        color_hex: '#F59E0B'
-      },
-      organizer: {
-        full_name: 'Delhi Music Society',
-        avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face'
-      }
-    },
-    {
-      id: '3',
-      title: 'Startup Pitch Competition',
-      description: 'Watch innovative startups pitch their ideas to top investors. Network with entrepreneurs and VCs.',
-      featured_image_url: 'https://images.unsplash.com/photo-1559223607-b4d0555ae227?w=600&h=400&fit=crop',
-      start_date: '2024-03-25T14:00:00Z',
-      venue_name: 'Innovation Hub, Bangalore',
-      base_price: 0,
-      currency: 'INR',
-      is_featured: false,
-      slug: 'startup-pitch-competition',
-      category: {
-        name: 'Business',
-        color_hex: '#10B981'
-      },
-      organizer: {
-        full_name: 'Startup Bangalore',
-        avatar_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop&crop=face'
-      }
-    }
-  ]);
+  // Apply filters
+  if (searchParams.search) {
+    query = query.or(`title.ilike.%${searchParams.search}%,short_description.ilike.%${searchParams.search}%`)
+  }
 
-  const [loading, setLoading] = useState(false);
-  const [error] = useState(null);
-  const [pagination] = useState({
-    page: 1,
-    total: 3,
-    totalPages: 1,
-    hasNext: false,
-    hasPrev: false
-  });
+  if (searchParams.category) {
+    // Filter by tags instead of categories
+    query = query.contains('tags', [searchParams.category])
+  }
 
-  const handleEventClick = (event: any) => {
-    window.location.href = `/events/${event.slug}`;
-  };
+  if (searchParams.location) {
+    query = query.or(`venue_name.ilike.%${searchParams.location}%,venue_address.ilike.%${searchParams.location}%`)
+  }
 
-  const handleFilterChange = (key: string, value: any) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  };
+  if (searchParams.priceMin) {
+    query = query.gte('base_price', parseInt(searchParams.priceMin))
+  }
 
-  const clearFilters = () => {
-    setFilters({
-      search: '',
-      category: '',
-      location: '',
-      dateFrom: '',
-      dateTo: '',
-      priceMin: 0,
-      priceMax: 10000
-    });
-  };
+  if (searchParams.priceMax) {
+    query = query.lte('base_price', parseInt(searchParams.priceMax))
+  }
+
+  // Apply sorting
+  const sortBy = searchParams.sortBy || 'date_asc'
+  switch (sortBy) {
+    case 'date_desc':
+      query = query.order('start_date', { ascending: false })
+      break
+    case 'price_asc':
+      query = query.order('base_price', { ascending: true })
+      break
+    case 'price_desc':
+      query = query.order('base_price', { ascending: false })
+      break
+    default:
+      query = query.order('start_date', { ascending: true })
+  }
+
+  const { data, error, count } = await query
+
+  if (error) {
+    console.error('Error fetching events:', error)
+    return { events: [], total: 0 }
+  }
+
+  return {
+    events: data || [],
+    total: count || 0
+  }
+}
+
+// Use hardcoded categories since event_categories table was removed
+function getCategories() {
+  return [
+    { id: '1', name: 'Technology', slug: 'technology', description: 'Tech conferences, workshops, and meetups', is_active: true, sort_order: 1, created_at: '', updated_at: '' },
+    { id: '2', name: 'Music', slug: 'music', description: 'Concerts, festivals, and live music events', is_active: true, sort_order: 2, created_at: '', updated_at: '' },
+    { id: '3', name: 'Sports', slug: 'sports', description: 'Sports events, tournaments, and fitness activities', is_active: true, sort_order: 3, created_at: '', updated_at: '' },
+    { id: '4', name: 'Arts & Culture', slug: 'arts-culture', description: 'Art exhibitions, theater shows, and cultural events', is_active: true, sort_order: 4, created_at: '', updated_at: '' },
+    { id: '5', name: 'Food & Drink', slug: 'food-drink', description: 'Food festivals, wine tastings, and culinary events', is_active: true, sort_order: 5, created_at: '', updated_at: '' },
+    { id: '6', name: 'Business', slug: 'business', description: 'Professional conferences, networking, and seminars', is_active: true, sort_order: 6, created_at: '', updated_at: '' },
+    { id: '7', name: 'Health & Wellness', slug: 'health-wellness', description: 'Yoga, meditation, and wellness workshops', is_active: true, sort_order: 7, created_at: '', updated_at: '' },
+    { id: '8', name: 'Education', slug: 'education', description: 'Workshops, classes, and educational seminars', is_active: true, sort_order: 8, created_at: '', updated_at: '' }
+  ]
+}
+
+interface EventsPageProps {
+  searchParams: Promise<Record<string, string>>
+}
+
+export default async function EventsPage({ searchParams }: EventsPageProps) {
+  const resolvedSearchParams = await searchParams
+  
+  const eventsData = await getEvents(resolvedSearchParams)
+  const categories = getCategories()
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-display-md font-bold mb-4">
-          Discover Events
-        </h1>
-        <p className="text-lg text-gray-600">
-          Find the perfect event for you
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Filters Sidebar */}
-        <div className="lg:col-span-1">
-          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold">Filters</h3>
-              <Button
-                variant="link"
-                size="sm"
-                onClick={clearFilters}
-              >
-                Clear All
-              </Button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Search Events
-                </label>
-                <Input
-                  placeholder="Event name, organizer..."
-                  value={filters.search}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Category
-                </label>
-                <Select 
-                  selectedKey={filters.category || null} 
-                  onSelectionChange={(value) => handleFilterChange('category', value || '')}
-                  placeholder="All Categories"
-                  items={[
-                    { id: '', label: 'All Categories' },
-                    { id: 'technology', label: 'Technology' },
-                    { id: 'music', label: 'Music' },
-                    { id: 'business', label: 'Business' },
-                    { id: 'sports', label: 'Sports' }
-                  ]}
-                >
-                  {(item) => (
-                    <Select.Item key={item.id} id={item.id} value={item.id}>
-                      {item.label}
-                    </Select.Item>
-                  )}
-                </Select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Location
-                </label>
-                <Input
-                  placeholder="City or venue..."
-                  value={filters.location}
-                  onChange={(e) => handleFilterChange('location', e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Price Range
-                </label>
-                <div className="space-y-2">
-                  <Input
-                    type="number"
-                    placeholder="Min price"
-                    value={filters.priceMin.toString()}
-                    onChange={(e) => handleFilterChange('priceMin', parseInt(e.target.value) || 0)}
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Max price"
-                    value={filters.priceMax.toString()}
-                    onChange={(e) => handleFilterChange('priceMax', parseInt(e.target.value) || 10000)}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Events Grid */}
-        <div className="lg:col-span-3">
-          <div className="mb-6 flex justify-between items-center">
-            <p className="text-sm text-gray-600">
-              {pagination?.total || 0} events found
-            </p>
-            
-            <Select 
-              defaultSelectedKey="date_asc" 
-              placeholder="Sort by"
-              items={[
-                { id: 'date_asc', label: 'Date (Earliest first)' },
-                { id: 'date_desc', label: 'Date (Latest first)' },
-                { id: 'price_asc', label: 'Price (Low to high)' },
-                { id: 'price_desc', label: 'Price (High to low)' }
-              ]}
-            >
-              {(item) => (
-                <Select.Item key={item.id} id={item.id} value={item.id}>
-                  {item.label}
-                </Select.Item>
-              )}
-            </Select>
-          </div>
-
-          <EventList
-            events={events || []}
-            loading={loading}
-            error={error}
-            pagination={pagination}
-            onEventClick={handleEventClick}
-          />
-        </div>
-      </div>
-    </div>
-  );
+    <Suspense fallback={<div>Loading...</div>}>
+      <EventsPageClient 
+        initialEvents={eventsData.events}
+        initialTotal={eventsData.total}
+        categories={categories}
+        searchParams={resolvedSearchParams}
+      />
+    </Suspense>
+  )
 }

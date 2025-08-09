@@ -24,12 +24,12 @@ interface Event {
   category: {
     name: string;
     color_hex: string;
-  };
+  } | null;
   organizer: {
     full_name: string;
     avatar_url: string;
     email: string;
-  };
+  } | null;
 }
 
 interface Props {
@@ -101,16 +101,18 @@ export function EventDetailClient({ event, availableSeats }: Props) {
           {/* Event Info */}
           <div className="mb-6">
             <div className="flex items-center gap-4 mb-4">
-              <Badge 
-                type="pill-color"
-                color="gray"
-                style={{ 
-                  backgroundColor: `${event.category.color_hex}20`,
-                  color: event.category.color_hex 
-                }}
-              >
-                {event.category.name}
-              </Badge>
+              {event.category && (
+                <Badge 
+                  type="pill-color"
+                  color="brand"
+                  style={{ 
+                    backgroundColor: `${event.category.color_hex}20`,
+                    color: event.category.color_hex 
+                  }}
+                >
+                  {event.category.name}
+                </Badge>
+              )}
               <span className="text-sm text-gray-500">
                 {formatDate(event.start_date)}
               </span>
@@ -120,17 +122,19 @@ export function EventDetailClient({ event, availableSeats }: Props) {
               {event.title}
             </h1>
 
-            <div className="flex items-center mb-6">
-              <Avatar 
-                src={event.organizer.avatar_url}
-                name={event.organizer.full_name}
-                size="md"
-              />
-              <div className="ml-3">
-                <p className="font-medium">{event.organizer.full_name}</p>
-                <p className="text-sm text-gray-600">Event Organizer</p>
+            {event.organizer && (
+              <div className="flex items-center mb-6">
+                <Avatar 
+                  src={event.organizer.avatar_url}
+                  name={event.organizer.full_name}
+                  size="md"
+                />
+                <div className="ml-3">
+                  <p className="font-medium">{event.organizer.full_name}</p>
+                  <p className="text-sm text-gray-600">Event Organizer</p>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="prose max-w-none text-gray-700">
               <p>{event.description}</p>

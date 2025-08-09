@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/base/input/input';
 import { Button } from '@/components/base/buttons/button';
 import { Select } from '@/components/base/select/select';
@@ -43,13 +44,46 @@ export default function SignUpPage() {
         throw new Error('Password must be at least 6 characters long');
       }
 
-      // This is a placeholder - in production, this would use Supabase auth
-      console.log('Sign up data:', formData);
-      
-      // Simulate successful registration
-      setTimeout(() => {
-        router.push('/auth/signin?message=Account created successfully');
-      }, 1000);
+      const supabase = createClient();
+
+      // Sign up with Supabase Auth
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName,
+            role: formData.role
+          }
+        }
+      });
+
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
+      if (data.user) {
+        // Create profile in profiles table
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: data.user.id,
+              email: formData.email,
+              full_name: formData.fullName,
+              role: formData.role as 'attendee' | 'organizer'
+            }
+          ]);
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+          // Continue anyway as the auth user was created
+        }
+
+        // Redirect with success message
+        router.push('/auth/signin?message=Account created successfully. Please check your email to verify your account.');
+      }
 
     } catch (error: any) {
       setError(error.message);
