@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { EventsPageClient } from '@/components/events/events-page-client'
+import { MainLayout } from '@/components/layout/main-layout'
 import type { Tables } from '@/lib/supabase/database.types'
 
 type Event = Tables<'events'> & {
@@ -97,13 +98,15 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   const categories = getCategories()
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <EventsPageClient 
-        initialEvents={eventsData.events}
-        initialTotal={eventsData.total}
-        categories={categories}
-        searchParams={resolvedSearchParams}
-      />
-    </Suspense>
+    <MainLayout>
+      <Suspense fallback={<div>Loading...</div>}>
+        <EventsPageClient 
+          initialEvents={eventsData.events}
+          initialTotal={eventsData.total}
+          categories={categories}
+          searchParams={resolvedSearchParams}
+        />
+      </Suspense>
+    </MainLayout>
   )
 }

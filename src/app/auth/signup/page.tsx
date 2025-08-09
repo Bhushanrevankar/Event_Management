@@ -7,6 +7,7 @@ import { Input } from '@/components/base/input/input';
 import { Button } from '@/components/base/buttons/button';
 import { Select } from '@/components/base/select/select';
 import { UntitledLogoMinimal } from '@/components/foundations/logo/untitledui-logo-minimal';
+import { MainLayout } from '@/components/layout/main-layout';
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -64,21 +65,24 @@ export default function SignUpPage() {
       }
 
       if (data.user) {
-        // Create profile in profiles table
+        // Create profile using the database function
         const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: data.user.id,
-              email: formData.email,
-              full_name: formData.fullName,
-              role: formData.role as 'attendee' | 'organizer'
-            }
-          ]);
+          .rpc('create_user_profile', {
+            user_id: data.user.id,
+            user_email: formData.email,
+            user_full_name: formData.fullName,
+            user_role: formData.role
+          });
 
         if (profileError) {
           console.error('Error creating profile:', profileError);
-          // Continue anyway as the auth user was created
+          console.error('Profile error details:', JSON.stringify(profileError, null, 2));
+          console.error('Profile error type:', typeof profileError);
+          console.error('Profile error keys:', Object.keys(profileError || {}));
+          
+          const errorMessage = profileError?.message || profileError?.error_description || profileError?.details || JSON.stringify(profileError) || 'Unknown database error';
+          setError(`Profile creation failed: ${errorMessage}`);
+          return;
         }
 
         // Redirect with success message
@@ -93,8 +97,9 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <MainLayout showAuthButtons={false}>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <UntitledLogoMinimal className="h-12 w-12 text-primary-600" />
@@ -248,7 +253,8 @@ export default function SignUpPage() {
             </p>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </MainLayout>
   );
 }

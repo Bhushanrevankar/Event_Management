@@ -6,21 +6,55 @@ import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/base/input/input';
 import { Button } from '@/components/base/buttons/button';
 import { UntitledLogoMinimal } from '@/components/foundations/logo/untitledui-logo-minimal';
+import { MainLayout } from '@/components/layout/main-layout';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') || '/dashboard';
 
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      setError('Please enter your email address first');
+      return;
+    }
+
+    setResendLoading(true);
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      const supabase = createClient();
+      
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+      });
+
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccessMessage('Confirmation email sent! Please check your inbox.');
+      }
+    } catch (error: any) {
+      setError('Failed to resend confirmation email');
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccessMessage('');
 
     try {
       const supabase = createClient();
@@ -77,8 +111,9 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <MainLayout showAuthButtons={false}>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <UntitledLogoMinimal className="h-12 w-12 text-primary-600" />
@@ -118,6 +153,25 @@ export default function SignInPage() {
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
                 {error}
+                {error.includes('Email not confirmed') && (
+                  <div className="mt-2">
+                    <Button
+                      size="sm"
+                      color="secondary"
+                      onClick={handleResendConfirmation}
+                      disabled={resendLoading || !email}
+                      className="text-xs"
+                    >
+                      {resendLoading ? 'Sending...' : 'Resend confirmation email'}
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md text-sm">
+                {successMessage}
               </div>
             )}
 
@@ -189,7 +243,8 @@ export default function SignInPage() {
             </p>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </MainLayout>
   );
 }

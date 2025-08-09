@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { LandingPageClient } from './landing-page-client'
+import { MainLayout } from '@/components/layout/main-layout'
 import type { Tables } from '@/lib/supabase/database.types'
 
 type Event = Tables<'events'>
@@ -39,9 +40,11 @@ export default async function LandingPage() {
   const featuredEvents = await getFeaturedEvents()
   
   return (
-    <LandingPageClient 
-      featuredEvents={featuredEvents}
-      categories={categories}
-    />
+    <MainLayout>
+      <LandingPageClient 
+        featuredEvents={featuredEvents}
+        categories={categories}
+      />
+    </MainLayout>
   )
 }
