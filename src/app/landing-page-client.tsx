@@ -26,8 +26,8 @@ export function LandingPageClient({ featuredEvents, categories }: Props) {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 py-24">
-        <div className="absolute inset-0 bg-black/50"></div>
+      <section className="relative py-24">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-200 via-gray-400 to-gray-200"></div>
         <div className="relative max-w-7xl mx-auto px-4 text-center text-white">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-display-xl font-bold mb-6 leading-tight">
@@ -79,7 +79,7 @@ export function LandingPageClient({ featuredEvents, categories }: Props) {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-display-sm font-bold mb-4">
+            <h2 className="text-display-sm font-bold mb-4 text-gray-900">
               Explore Event Categories
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -115,7 +115,7 @@ export function LandingPageClient({ featuredEvents, categories }: Props) {
       </section>
 
       {/* Featured Events Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 ">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-display-sm font-bold mb-4">Featured Events</h2>
@@ -148,7 +148,7 @@ export function LandingPageClient({ featuredEvents, categories }: Props) {
                     </div>
                   )}
                 </div>
-                <div className="p-6">
+                <div className="p-6 ">
                   <div className="flex items-start justify-between mb-3">
                     <h3 className="font-semibold text-xl text-gray-900 line-clamp-2 group-hover:text-primary-600 transition-colors">
                       {event.title}
@@ -232,7 +232,7 @@ export function LandingPageClient({ featuredEvents, categories }: Props) {
       </section>
       
       {/* Call to Action Section */}
-      <section className="py-20 bg-gradient-to-r from-primary-600 to-primary-700">
+      <section className="py-20 bg-gradient-to-r from-gray-400 to-gray-300">
         <div className="max-w-4xl mx-auto px-4 text-center text-white">
           <h2 className="text-display-md font-bold mb-4">
             Ready to Host Your Own Event?
