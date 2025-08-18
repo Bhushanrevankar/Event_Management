@@ -41,7 +41,7 @@ export function AttendeeDashboardClient({ bookings, stats, user }: Props) {
     quantity: booking.quantity,
     total_amount: booking.total_amount,
     status: booking.status as 'confirmed' | 'pending' | 'cancelled',
-    created_at: booking.created_at,
+    created_at: booking.created_at || new Date().toISOString(),
     event: booking.events ? {
       title: booking.events.title,
       featured_image_url: booking.events.featured_image_url,
