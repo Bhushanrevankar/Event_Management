@@ -180,7 +180,7 @@ export function AdminDashboardClient({ events, stats, user }: Props) {
                         <p className="font-medium text-gray-900">{event.title}</p>
                         <Badge
                           type="pill-color"
-                          color={getStatusColor(event.is_published)}
+                          color={getStatusColor(event.is_published ?? false)}
                         >
                           {event.is_published ? 'Published' : 'Draft'}
                         </Badge>
