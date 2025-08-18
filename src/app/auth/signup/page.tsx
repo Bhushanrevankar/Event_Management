@@ -80,7 +80,7 @@ export default function SignUpPage() {
           console.error('Profile error type:', typeof profileError);
           console.error('Profile error keys:', Object.keys(profileError || {}));
           
-          const errorMessage = profileError?.message || profileError?.error_description || profileError?.details || JSON.stringify(profileError) || 'Unknown database error';
+          const errorMessage = profileError?.message || profileError?.details || JSON.stringify(profileError) || 'Unknown database error';
           setError(`Profile creation failed: ${errorMessage}`);
           return;
         }
