@@ -149,7 +149,7 @@ export default function SignUpPage() {
                 ]}
               >
                 {(item) => (
-                  <Select.Item key={item.id} id={item.id} value={item.id}>
+                  <Select.Item key={item.id} id={item.id}>
                     {item.label}
                   </Select.Item>
                 )}
