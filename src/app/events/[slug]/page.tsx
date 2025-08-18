@@ -4,7 +4,7 @@ import { EventDetailClient } from './event-detail-client'
 import type { Tables } from '@/lib/supabase/database.types'
 
 interface Props {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 type Event = Tables<'events'> & {
@@ -33,7 +33,8 @@ async function getEventBySlug(slug: string): Promise<Event | null> {
 }
 
 export default async function EventDetailPage({ params }: Props) {
-  const event = await getEventBySlug(params.slug)
+  const { slug } = await params
+  const event = await getEventBySlug(slug)
 
   if (!event) {
     notFound()

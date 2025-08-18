@@ -6,7 +6,17 @@ import { Input } from '@/components/base/input/input'
 import { FeaturedIcon } from '@/components/foundations/featured-icon/featured-icons'
 import { SearchMd, ArrowRight, Calendar, MarkerPin01 as MapPin, Star01 } from '@untitledui/icons'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import type { Tables } from '@/lib/supabase/database.types'
+
+// Dynamically import map component to avoid SSR issues
+const NearbyEventsMap = dynamic(
+  () => import('@/components/events/nearby-events-map').then(mod => ({ default: mod.NearbyEventsMap })),
+  { 
+    ssr: false,
+    loading: () => <div className="h-96 bg-gray-100 rounded-lg animate-pulse flex items-center justify-center">Loading map...</div>
+  }
+)
 
 type Event = Tables<'events'>
 
@@ -114,8 +124,35 @@ export function LandingPageClient({ featuredEvents, categories }: Props) {
         </div>
       </section>
 
+      {/* Nearby Events Map Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-display-sm font-bold mb-4 text-gray-900">
+              Events Near You
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Discover exciting events happening around your location on our interactive map
+            </p>
+          </div>
+          
+          <div className="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+            <NearbyEventsMap 
+              initialEvents={featuredEvents}
+              className="h-96 md:h-[500px]"
+            />
+          </div>
+          
+          <div className="text-center mt-8">
+            <Button size="md" color="secondary" href="/events" iconTrailing={ArrowRight}>
+              View All Events
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Featured Events Section */}
-      <section className="py-20 ">
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-display-sm font-bold mb-4">Featured Events</h2>
