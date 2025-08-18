@@ -190,7 +190,7 @@ export function AdminDashboardClient({ events, stats, user }: Props) {
                       </p>
                       <div className="flex items-center text-xs text-gray-500 space-x-4">
                         <span>{event.bookings?.length || 0} bookings</span>
-                        <span>Created {formatDate(event.created_at)}</span>
+                        <span>Created {formatDate(event.created_at || '')}</span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2 ml-4">
