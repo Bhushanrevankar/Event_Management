@@ -1,9 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
-
-// Force dynamic rendering for auth pages
-export const dynamic = 'force-dynamic';
+import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Input } from '@/components/base/input/input';
@@ -11,7 +8,7 @@ import { Button } from '@/components/base/buttons/button';
 import { UntitledLogoMinimal } from '@/components/foundations/logo/untitledui-logo-minimal';
 import { MainLayout } from '@/components/layout/main-layout';
 
-function SignInForm() {
+export default function SignInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -249,13 +246,5 @@ function SignInForm() {
         </div>
       </div>
     </MainLayout>
-  );
-}
-
-export default function SignInPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-      <SignInForm />
-    </Suspense>
   );
 }
