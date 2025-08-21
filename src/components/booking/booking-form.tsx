@@ -9,9 +9,9 @@ import { cx } from "@/utils/cx";
 interface Event {
   id: string;
   title: string;
-  base_price: number;
-  currency: string;
-  max_tickets_per_user: number;
+  base_price: number | null;
+  currency: string | null;
+  max_tickets_per_user: number | null;
 }
 
 interface BookingFormProps {
@@ -49,8 +49,8 @@ export function BookingForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const maxAllowed = Math.min(
-    event.max_tickets_per_user,
-    maxTickets || event.max_tickets_per_user
+    event.max_tickets_per_user || 10,
+    maxTickets || event.max_tickets_per_user || 10
   );
 
   const formatPrice = (price: number) => {
@@ -124,7 +124,7 @@ export function BookingForm({
     onSubmit(bookingData);
   };
 
-  const subtotal = event.base_price * quantity;
+  const subtotal = (event.base_price || 0) * quantity;
   const fees = Math.round(subtotal * 0.03); // 3% platform fee
   const total = subtotal + fees;
 
@@ -138,7 +138,7 @@ export function BookingForm({
             <div>
               <p className="font-medium text-gray-900">{event.title}</p>
               <p className="text-sm text-gray-600">
-                {formatPrice(event.base_price)} per ticket
+                {formatPrice(event.base_price || 0)} per ticket
               </p>
             </div>
             
@@ -184,7 +184,7 @@ export function BookingForm({
                       placeholder="Enter full name"
                       value={attendeeInfo.names[index] || ''}
                       onChange={(value) => handleAttendeeInfoChange(index, 'names', value)}
-                      required
+                      isRequired
                       icon={User01}
                     />
                   </div>
@@ -196,7 +196,7 @@ export function BookingForm({
                       placeholder="Enter email address"
                       value={attendeeInfo.emails[index] || ''}
                       onChange={(value) => handleAttendeeInfoChange(index, 'emails', value)}
-                      required
+                      isRequired
                       icon={Mail01}
                     />
                   </div>
@@ -239,7 +239,7 @@ export function BookingForm({
                 rows={3}
                 placeholder="Any special requirements or requests..."
                 value={specialRequests}
-                onChange={(value) => setSpecialRequests(value)}
+                onChange={(e) => setSpecialRequests(e.target.value)}
               />
             </div>
           </div>

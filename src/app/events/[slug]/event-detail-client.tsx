@@ -14,20 +14,20 @@ interface Event {
   end_date: string;
   venue_name: string;
   venue_address: string;
-  base_price: number;
-  currency: string;
-  is_featured: boolean;
-  slug: string;
+  base_price: number | null;
+  currency: string | null;
+  is_featured: boolean | null;
+  slug: string | null;
   total_capacity: number;
-  max_tickets_per_user: number;
+  max_tickets_per_user: number | null;
   age_restriction?: number | null;
   category: {
     name: string;
     color_hex: string;
   } | null;
   organizer: {
-    full_name: string;
-    avatar_url: string;
+    full_name: string | null;
+    avatar_url: string | null;
     email: string;
   } | null;
 }
@@ -171,7 +171,7 @@ export function EventDetailClient({ event, availableSeats }: Props) {
                 <h3 className="font-semibold">Tickets</h3>
               </div>
               <p className="text-lg font-bold text-primary-600">
-                {formatPrice(event.base_price, event.currency)}
+                {formatPrice(event.base_price || 0, event.currency || 'INR')}
               </p>
               <p className="text-sm text-gray-600">
                 {availableSeats} of {event.total_capacity} available
@@ -196,9 +196,9 @@ export function EventDetailClient({ event, availableSeats }: Props) {
           <div className="sticky top-8 bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
             <div className="text-center mb-6">
               <p className="text-3xl font-bold text-primary-600">
-                {formatPrice(event.base_price, event.currency)}
+                {formatPrice(event.base_price || 0, event.currency || 'INR')}
               </p>
-              {event.base_price > 0 && (
+              {event.base_price && event.base_price > 0 && (
                 <p className="text-sm text-gray-600">per ticket</p>
               )}
             </div>

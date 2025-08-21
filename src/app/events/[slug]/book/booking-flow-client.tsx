@@ -17,23 +17,23 @@ interface Event {
   end_date: string;
   venue_name: string;
   venue_address: string;
-  base_price: number;
-  currency: string;
-  max_tickets_per_user: number;
+  base_price: number | null;
+  currency: string | null;
+  max_tickets_per_user: number | null;
   category: {
     name: string;
     color_hex: string;
-  };
+  } | null;
   organizer: {
-    full_name: string;
-    avatar_url: string;
+    full_name: string | null;
+    avatar_url: string | null;
     email: string;
-  };
+  } | null;
 }
 
 interface User {
   id: string;
-  email: string | undefined;
+  email?: string;
   user_metadata?: {
     full_name?: string;
   };
@@ -92,7 +92,7 @@ export function BookingFlowClient({ event, user, availableSeats }: Props) {
 
     try {
       const supabase = createClient();
-      const subtotal = event.base_price * data.quantity;
+      const subtotal = (event.base_price || 0) * data.quantity;
       const fees = Math.round(subtotal * 0.03);
       const total = subtotal + fees;
 
@@ -200,7 +200,7 @@ export function BookingFlowClient({ event, user, availableSeats }: Props) {
 
   const calculateTotal = () => {
     if (!bookingData) return 0;
-    const subtotal = event.base_price * bookingData.quantity;
+    const subtotal = (event.base_price || 0) * bookingData.quantity;
     const fees = Math.round(subtotal * 0.03);
     return subtotal + fees;
   };
@@ -294,7 +294,7 @@ export function BookingFlowClient({ event, user, availableSeats }: Props) {
 
             <BookingForm
               event={event}
-              maxTickets={Math.min(event.max_tickets_per_user, availableSeats)}
+              maxTickets={Math.min(event.max_tickets_per_user || 10, availableSeats)}
               onSubmit={handleBookingSubmit}
             />
           </div>
@@ -334,11 +334,11 @@ export function BookingFlowClient({ event, user, availableSeats }: Props) {
                 <div className="border-t border-gray-200 pt-4">
                   <div className="flex justify-between text-sm mb-2">
                     <span>Tickets ({bookingData.quantity}x)</span>
-                    <span>{formatPrice(event.base_price * bookingData.quantity)}</span>
+                    <span>{formatPrice((event.base_price || 0) * bookingData.quantity)}</span>
                   </div>
                   <div className="flex justify-between text-sm mb-2">
                     <span>Platform fees</span>
-                    <span>{formatPrice(Math.round(event.base_price * bookingData.quantity * 0.03))}</span>
+                    <span>{formatPrice(Math.round((event.base_price || 0) * bookingData.quantity * 0.03))}</span>
                   </div>
                   <div className="flex justify-between font-semibold text-lg border-t border-gray-200 pt-2">
                     <span>Total</span>
