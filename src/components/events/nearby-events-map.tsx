@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaf
 import { LatLng } from 'leaflet'
 import { createClient } from '@/lib/supabase/client'
 import type { Tables } from '@/lib/supabase/database.types'
+import { calculateDistance } from '@/utils/geospatial'
 import 'leaflet/dist/leaflet.css'
 
 // Fix for default markers in react-leaflet
@@ -66,17 +67,7 @@ export function NearbyEventsMap({ initialEvents = [], className }: NearbyEventsM
   const lastLocationRef = useRef<UserLocation | null>(null)
   const supabase = createClient()
 
-  // Function to calculate distance between two points
-  const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
-    const R = 6371 // Earth's radius in km
-    const dLat = (lat2 - lat1) * Math.PI / 180
-    const dLng = (lng2 - lng1) * Math.PI / 180
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLng / 2) * Math.sin(dLng / 2)
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-    return R * c
-  }
+  // Use centralized distance calculation from utils
 
   // Function to fetch nearby events
   const fetchNearbyEvents = async (lat: number, lng: number, radiusKm: number = searchRadius) => {
@@ -271,8 +262,8 @@ export function NearbyEventsMap({ initialEvents = [], className }: NearbyEventsM
     }
   }, [initialEvents])
 
-  // Default center (San Francisco) if no user location
-  const defaultCenter: [number, number] = [37.7749, -122.4194]
+  // Default center (Mumbai, India) if no user location
+  const defaultCenter: [number, number] = [19.0760, 72.8777]
   const mapCenter: [number, number] = userLocation 
     ? [userLocation.lat, userLocation.lng] 
     : defaultCenter

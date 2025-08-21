@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 
-interface GeolocationPosition {
+interface CustomGeolocationPosition {
   lat: number
   lng: number
   accuracy?: number
@@ -14,7 +14,7 @@ interface UseGeolocationOptions {
 }
 
 interface UseGeolocationReturn {
-  position: GeolocationPosition | null
+  position: CustomGeolocationPosition | null
   error: string | null
   loading: boolean
   getCurrentPosition: () => void
@@ -28,10 +28,10 @@ export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocat
     distanceThreshold = 100
   } = options
 
-  const [position, setPosition] = useState<GeolocationPosition | null>(null)
+  const [position, setPosition] = useState<CustomGeolocationPosition | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const lastPositionRef = useRef<GeolocationPosition | null>(null)
+  const lastPositionRef = useRef<CustomGeolocationPosition | null>(null)
   const watchIdRef = useRef<number | null>(null)
 
   // Calculate distance between two points in meters
@@ -47,7 +47,7 @@ export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocat
   }
 
   const handleSuccess = (geoPosition: GeolocationPosition) => {
-    const newPosition: GeolocationPosition = {
+    const newPosition: CustomGeolocationPosition = {
       lat: geoPosition.coords.latitude,
       lng: geoPosition.coords.longitude,
       accuracy: geoPosition.coords.accuracy
