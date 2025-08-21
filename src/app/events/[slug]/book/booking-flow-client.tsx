@@ -313,11 +313,17 @@ export function BookingFlowClient({ event, user, availableSeats }: Props) {
               
               <div className="space-y-4">
                 <div className="flex items-start space-x-4">
-                  <img 
-                    src={event.featured_image_url} 
-                    alt={event.title}
-                    className="w-20 h-20 rounded-lg object-cover"
-                  />
+                  {event.featured_image_url ? (
+                    <img 
+                      src={event.featured_image_url} 
+                      alt={event.title}
+                      className="w-20 h-20 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-lg bg-gray-200 flex items-center justify-center">
+                      <span className="text-gray-400 text-xs">No image</span>
+                    </div>
+                  )}
                   <div className="flex-1">
                     <h4 className="font-medium text-gray-900">{event.title}</h4>
                     <p className="text-sm text-gray-600">{formatDate(event.start_date)}</p>
