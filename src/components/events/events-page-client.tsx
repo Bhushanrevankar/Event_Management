@@ -8,7 +8,7 @@ import { Select } from '@/components/base/select/select'
 import { Button } from '@/components/base/buttons/button'
 import type { Tables } from '@/lib/supabase/database.types'
 
-type Event = Tables<'events'> & {
+type EventWithProfiles = Tables<'events'> & {
   profiles: Tables<'profiles'> | null
 }
 
@@ -24,7 +24,7 @@ type Category = {
 }
 
 interface EventsPageClientProps {
-  initialEvents: Event[]
+  initialEvents: EventWithProfiles[]
   initialTotal: number
   categories: Category[]
   searchParams: Record<string, string>
@@ -45,8 +45,10 @@ export function EventsPageClient({
     priceMax: searchParams.priceMax ? parseInt(searchParams.priceMax) : 10000
   })
 
-  const handleEventClick = (event: Event) => {
-    router.push(`/events/${event.slug}`)
+  const handleEventClick = (event: any) => {
+    if (event.slug) {
+      router.push(`/events/${event.slug}`)
+    }
   }
 
   const handleFilterChange = (key: string, value: any) => {

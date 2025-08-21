@@ -8,22 +8,22 @@ import { PaginationPageDefault } from "@/components/application/pagination/pagin
 interface Event {
   id: string;
   title: string;
-  description: string;
-  featured_image_url: string;
+  description: string | null;
+  featured_image_url: string | null;
   start_date: string;
   venue_name: string;
-  base_price: number;
-  currency: string;
-  is_featured?: boolean;
-  slug: string;
+  base_price: number | null;
+  currency: string | null;
+  is_featured?: boolean | null;
+  slug: string | null;
   category?: {
     name: string;
     color_hex: string;
-  };
+  } | null;
   organizer?: {
-    full_name: string;
-    avatar_url?: string;
-  };
+    full_name: string | null;
+    avatar_url?: string | null;
+  } | null;
 }
 
 interface PaginationInfo {

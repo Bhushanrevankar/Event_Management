@@ -9,22 +9,22 @@ import { cx } from "@/utils/cx";
 interface Event {
   id: string;
   title: string;
-  description: string;
-  featured_image_url: string;
+  description: string | null;
+  featured_image_url: string | null;
   start_date: string;
   venue_name: string;
-  base_price: number;
-  currency: string;
-  is_featured?: boolean;
-  slug: string;
+  base_price: number | null;
+  currency: string | null;
+  is_featured?: boolean | null;
+  slug: string | null;
   category?: {
     name: string;
     color_hex: string;
-  };
+  } | null;
   organizer?: {
-    full_name: string;
-    avatar_url?: string;
-  };
+    full_name: string | null;
+    avatar_url?: string | null;
+  } | null;
 }
 
 interface EventCardProps {
@@ -63,11 +63,17 @@ export function EventCard({ event, variant = 'default', onClick, className }: Ev
     >
       {/* Image */}
       <div className="relative aspect-video w-full">
-        <img 
-          src={event.featured_image_url} 
-          alt={event.title}
-          className="w-full h-full object-cover"
-        />
+        {event.featured_image_url ? (
+          <img 
+            src={event.featured_image_url} 
+            alt={event.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-500">No image</span>
+          </div>
+        )}
         {event.is_featured && (
           <Badge 
             type="pill-color" 
@@ -95,7 +101,7 @@ export function EventCard({ event, variant = 'default', onClick, className }: Ev
         </h3>
         
         <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-          {event.description}
+          {event.description || 'No description available'}
         </p>
 
         <div className="space-y-2 mb-4">
@@ -107,7 +113,7 @@ export function EventCard({ event, variant = 'default', onClick, className }: Ev
             <MarkerPin01 className="w-4 h-4 mr-2" />
             {event.venue_name}
           </div>
-          {event.organizer && (
+          {event.organizer && event.organizer.full_name && (
             <div className="flex items-center text-sm text-gray-600">
               <User01 className="w-4 h-4 mr-2" />
               {event.organizer.full_name}
@@ -118,9 +124,9 @@ export function EventCard({ event, variant = 'default', onClick, className }: Ev
         <div className="flex items-center justify-between">
           <div>
             <span className="text-lg font-bold text-primary-600">
-              {formatPrice(event.base_price, event.currency)}
+              {formatPrice(event.base_price || 0, event.currency || 'INR')}
             </span>
-            {event.base_price > 0 && (
+            {event.base_price && event.base_price > 0 && (
               <span className="text-sm text-gray-500 ml-1">per ticket</span>
             )}
           </div>
