@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 
 // Force dynamic rendering for auth pages
 export const dynamic = 'force-dynamic';
@@ -11,7 +11,7 @@ import { Button } from '@/components/base/buttons/button';
 import { UntitledLogoMinimal } from '@/components/foundations/logo/untitledui-logo-minimal';
 import { MainLayout } from '@/components/layout/main-layout';
 
-export default function SignInPage() {
+function SignInForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -249,5 +249,13 @@ export default function SignInPage() {
         </div>
       </div>
     </MainLayout>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <SignInForm />
+    </Suspense>
   );
 }
