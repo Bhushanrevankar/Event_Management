@@ -8,8 +8,8 @@ import { Avatar } from '@/components/base/avatar/avatar';
 interface Event {
   id: string;
   title: string;
-  description: string;
-  featured_image_url: string;
+  description: string | null;
+  featured_image_url: string | null;
   start_date: string;
   end_date: string;
   venue_name: string;
@@ -82,11 +82,17 @@ export function EventDetailClient({ event, availableSeats }: Props) {
         <div className="lg:col-span-2">
           {/* Hero Image */}
           <div className="relative aspect-video rounded-lg overflow-hidden mb-6">
-            <img 
-              src={event.featured_image_url} 
-              alt={event.title}
-              className="w-full h-full object-cover"
-            />
+            {event.featured_image_url ? (
+              <img 
+                src={event.featured_image_url} 
+                alt={event.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                <span className="text-gray-500">No image available</span>
+              </div>
+            )}
             {event.is_featured && (
               <Badge 
                 type="pill-color" 
@@ -105,10 +111,6 @@ export function EventDetailClient({ event, availableSeats }: Props) {
                 <Badge 
                   type="pill-color"
                   color="brand"
-                  style={{ 
-                    backgroundColor: `${event.category.color_hex}20`,
-                    color: event.category.color_hex 
-                  }}
                 >
                   {event.category.name}
                 </Badge>
@@ -126,7 +128,7 @@ export function EventDetailClient({ event, availableSeats }: Props) {
               <div className="flex items-center mb-6">
                 <Avatar 
                   src={event.organizer.avatar_url}
-                  name={event.organizer.full_name}
+                  initials={event.organizer.full_name?.charAt(0) || 'O'}
                   size="md"
                 />
                 <div className="ml-3">
@@ -137,7 +139,7 @@ export function EventDetailClient({ event, availableSeats }: Props) {
             )}
 
             <div className="prose max-w-none text-gray-700">
-              <p>{event.description}</p>
+              <p>{event.description || 'No description available'}</p>
             </div>
           </div>
 

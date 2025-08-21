@@ -225,9 +225,9 @@ export function LandingPageClient({ featuredEvents, categories }: Props) {
                   <div className="flex justify-between items-center">
                     <div>
                       <span className="text-2xl font-bold text-primary-600">
-                        {event.base_price === 0 ? 'Free' : `${event.currency === 'INR' ? '₹' : '$'}${event.base_price}`}
+                        {!event.base_price || event.base_price === 0 ? 'Free' : `${event.currency === 'INR' ? '₹' : '$'}${event.base_price}`}
                       </span>
-                      {event.base_price > 0 && (
+                      {event.base_price && event.base_price > 0 && (
                         <span className="text-sm text-gray-500 ml-1">per ticket</span>
                       )}
                     </div>

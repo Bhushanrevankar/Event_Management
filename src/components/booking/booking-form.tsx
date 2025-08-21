@@ -183,8 +183,7 @@ export function BookingForm({
                       label="Full Name"
                       placeholder="Enter full name"
                       value={attendeeInfo.names[index] || ''}
-                      onChange={(e) => handleAttendeeInfoChange(index, 'names', e.target.value)}
-                      error={errors[`name_${index}`]}
+                      onChange={(value) => handleAttendeeInfoChange(index, 'names', value)}
                       required
                       icon={User01}
                     />
@@ -196,8 +195,7 @@ export function BookingForm({
                       type="email"
                       placeholder="Enter email address"
                       value={attendeeInfo.emails[index] || ''}
-                      onChange={(e) => handleAttendeeInfoChange(index, 'emails', e.target.value)}
-                      error={errors[`email_${index}`]}
+                      onChange={(value) => handleAttendeeInfoChange(index, 'emails', value)}
                       required
                       icon={Mail01}
                     />
@@ -209,7 +207,7 @@ export function BookingForm({
                     label="Phone Number (Optional)"
                     placeholder="Enter phone number"
                     value={attendeeInfo.phones[index] || ''}
-                    onChange={(e) => handleAttendeeInfoChange(index, 'phones', e.target.value)}
+                    onChange={(value) => handleAttendeeInfoChange(index, 'phones', value)}
                     icon={Phone01}
                   />
                 </div>
@@ -228,7 +226,7 @@ export function BookingForm({
                 label="Promotional Code (Optional)"
                 placeholder="Enter promotional code"
                 value={promotionalCode}
-                onChange={(e) => setPromotionalCode(e.target.value)}
+                onChange={(value) => setPromotionalCode(value)}
               />
             </div>
             
@@ -241,7 +239,7 @@ export function BookingForm({
                 rows={3}
                 placeholder="Any special requirements or requests..."
                 value={specialRequests}
-                onChange={(e) => setSpecialRequests(e.target.value)}
+                onChange={(value) => setSpecialRequests(value)}
               />
             </div>
           </div>

@@ -11,8 +11,8 @@ import { LoadingIndicator } from '@/components/application/loading-indicator/loa
 interface Event {
   id: string;
   title: string;
-  description: string;
-  featured_image_url: string;
+  description: string | null;
+  featured_image_url: string | null;
   start_date: string;
   end_date: string;
   venue_name: string;
@@ -33,7 +33,7 @@ interface Event {
 
 interface User {
   id: string;
-  email: string;
+  email: string | undefined;
   user_metadata?: {
     full_name?: string;
   };

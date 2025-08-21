@@ -20,10 +20,10 @@ export default function NotFound() {
                     </div>
 
                     <div className="flex flex-col-reverse gap-3 sm:flex-row">
-                        <Button color="secondary" size="xl" iconLeading={ArrowLeft} onPress={() => router.back()}>
+                        <Button color="secondary" size="xl" iconLeading={ArrowLeft} onClick={() => router.back()}>
                             Go back
                         </Button>
-                        <Button size="xl" onPress={() => router.back()}>
+                        <Button size="xl" onClick={() => router.push('/')}>
                             Take me home
                         </Button>
                     </div>

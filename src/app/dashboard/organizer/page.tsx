@@ -3,12 +3,22 @@ import { createClient } from '@/lib/supabase/server'
 import { OrganizerDashboardClient } from './organizer-dashboard-client'
 import type { Tables } from '@/lib/supabase/database.types'
 
+type EventWithBookings = Tables<'events'> & {
+  bookings?: Array<{
+    quantity: number
+    total_amount: number
+    status: string
+    created_at: string
+  }>
+}
+
 type Event = Tables<'events'> & {
   _count?: {
     bookings: number
   }
   total_bookings?: number
   total_revenue?: number
+  bookings?: number
 }
 
 async function getOrganizerData(userId: string): Promise<{
@@ -52,19 +62,19 @@ async function getOrganizerData(userId: string): Promise<{
   const now = new Date()
   const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
 
-  const processedEvents = events?.map(event => {
-    const confirmedBookings = event.bookings?.filter(booking => booking.status === 'confirmed') || []
-    const eventBookings = confirmedBookings.reduce((sum, booking) => sum + booking.quantity, 0)
-    const eventRevenue = confirmedBookings.reduce((sum, booking) => sum + booking.total_amount, 0)
+  const processedEvents = (events as EventWithBookings[])?.map(event => {
+    const confirmedBookings = event.bookings?.filter((booking: any) => booking.status === 'confirmed') || []
+    const eventBookings = confirmedBookings.reduce((sum: number, booking: any) => sum + booking.quantity, 0)
+    const eventRevenue = confirmedBookings.reduce((sum: number, booking: any) => sum + booking.total_amount, 0)
     
     totalBookings += eventBookings
     totalRevenue += eventRevenue
     
     // Calculate this month's revenue
-    const thisMonthBookings = confirmedBookings.filter(booking => 
+    const thisMonthBookings = confirmedBookings.filter((booking: any) => 
       new Date(booking.created_at) >= thisMonth
     )
-    thisMonthRevenue += thisMonthBookings.reduce((sum, booking) => sum + booking.total_amount, 0)
+    thisMonthRevenue += thisMonthBookings.reduce((sum: number, booking: any) => sum + booking.total_amount, 0)
 
     return {
       ...event,

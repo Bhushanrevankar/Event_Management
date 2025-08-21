@@ -82,10 +82,6 @@ export function EventCard({ event, variant = 'default', onClick, className }: Ev
             type="pill-color"
             color="gray"
             className="absolute top-3 right-3"
-            style={{ 
-              backgroundColor: `${event.category.color_hex}20`,
-              color: event.category.color_hex 
-            }}
           >
             {event.category.name}
           </Badge>

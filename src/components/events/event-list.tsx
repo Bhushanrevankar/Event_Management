@@ -72,7 +72,7 @@ export function EventList({
     return (
       <EmptyState>
         <EmptyState.Header>
-          <EmptyState.FeaturedIcon />
+          <EmptyState.FeaturedIcon color="gray" />
         </EmptyState.Header>
         <EmptyState.Content>
           <EmptyState.Title>No events found</EmptyState.Title>
