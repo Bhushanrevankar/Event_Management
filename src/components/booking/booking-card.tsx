@@ -17,7 +17,7 @@ interface Booking {
     featured_image_url?: string;
     start_date: string;
     venue_name: string;
-  };
+  } | null;
 }
 
 interface BookingCardProps {
@@ -56,6 +56,52 @@ export function BookingCard({
       currency: 'INR',
     }).format(amount);
   };
+
+  // Handle case where event is null
+  if (!booking.event) {
+    return (
+      <div className={cx(
+        "bg-white p-6 rounded-lg border border-gray-200 shadow-sm",
+        className
+      )}>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="font-semibold text-gray-900 mb-1">
+              Event Not Found
+            </h3>
+            <p className="text-sm text-gray-600 mb-2">
+              Booking #{booking.booking_reference}
+            </p>
+          </div>
+          <Badge
+            type="pill-color"
+            color={statusColors[booking.status]}
+          >
+            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+          </Badge>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            <span className="font-medium">{booking.quantity} ticket(s)</span>
+            <span className="mx-2">•</span>
+            <span className="font-bold text-gray-900">
+              {formatPrice(booking.total_amount)}
+            </span>
+          </div>
+          {onViewDetails && (
+            <Button
+              size="sm"
+              color="secondary"
+              iconLeading={Eye}
+              onClick={onViewDetails}
+            >
+              Details
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cx(
