@@ -14,7 +14,7 @@ interface Booking {
   created_at: string;
   event: {
     title: string;
-    featured_image_url?: string;
+    featured_image_url: string | null;
     start_date: string;
     venue_name: string;
   } | null;
