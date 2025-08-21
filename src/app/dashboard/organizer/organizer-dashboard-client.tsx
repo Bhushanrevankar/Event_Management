@@ -50,7 +50,14 @@ export function OrganizerDashboardClient({ events, stats, user }: Props) {
   const recentEvents = events.slice(0, 5)
 
   // Mock recent activity for now - could be enhanced to fetch real activity
-  const recentActivity = [
+  const recentActivity: Array<{
+    id: string
+    type: string
+    title: string
+    description: string
+    timestamp: string
+    amount: number | null
+  }> = [
     {
       id: '1',
       type: 'booking',
@@ -142,7 +149,7 @@ export function OrganizerDashboardClient({ events, stats, user }: Props) {
                           {formatTime(activity.timestamp)}
                         </p>
                       </div>
-                      {activity.amount && (
+                      {typeof activity.amount === 'number' && (
                         <div className="text-sm font-medium text-green-600">
                           +₹{activity.amount.toLocaleString()}
                         </div>
