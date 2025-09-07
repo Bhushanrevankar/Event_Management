@@ -49,10 +49,11 @@ export const TextAreaBase = ({ className, ...props }: TextAreaBaseProps) => {
 
 TextAreaBase.displayName = "TextAreaBase";
 
-interface TextFieldProps extends AriaTextAreaProps {
+interface TextFieldProps extends Omit<AriaTextAreaProps, 'onChange'> {
     label?: string;
     hint?: ReactNode;
     tooltip?: string;
+    onChange?: (value: string) => void;
     ref?: Ref<HTMLDivElement>;
     isInvalid?: AriaTextFieldProps["isInvalid"];
     isDisabled?: AriaTextFieldProps["isDisabled"];
@@ -72,12 +73,13 @@ export const TextArea = ({
     tooltip,
     value,
     defaultValue,
+    onChange,
     ref,
     ...textAreaProps
 }: TextFieldProps) => {
     return (
         <TextField
-            {...{ ref, isDisabled, isInvalid, isReadOnly, isRequired, className: wrapperClassName, "aria-label": textAreaProps["aria-label"] }}
+            {...{ ref, isDisabled, isInvalid, isReadOnly, isRequired, onChange, className: wrapperClassName, "aria-label": textAreaProps["aria-label"] }}
             value={value as string}
             defaultValue={defaultValue as string}
         >

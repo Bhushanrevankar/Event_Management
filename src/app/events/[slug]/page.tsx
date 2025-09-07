@@ -14,6 +14,28 @@ type Event = Tables<'events'> & {
 async function getEventBySlug(slug: string): Promise<Event | null> {
   const supabase = await createClient()
   
+  // First check if event exists at all
+  const { data: eventCheck, error: checkError } = await supabase
+    .from('events')
+    .select('id, title, is_published, status')
+    .eq('slug', slug)
+    .single()
+
+  if (checkError) {
+    if (checkError.code === 'PGRST116') {
+      console.error(`Event with slug '${slug}' does not exist`)
+      return null
+    }
+    console.error('Error checking event existence:', checkError)
+    return null
+  }
+
+  if (!eventCheck.is_published) {
+    // Event exists but is not published - this is expected behavior for draft events
+    return null
+  }
+
+  // Now fetch the full event data
   const { data, error } = await supabase
     .from('events')
     .select(`
@@ -25,7 +47,7 @@ async function getEventBySlug(slug: string): Promise<Event | null> {
     .single()
 
   if (error || !data) {
-    console.error('Error fetching event:', error)
+    console.error('Error fetching published event:', error)
     return null
   }
 
