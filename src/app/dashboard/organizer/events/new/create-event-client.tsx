@@ -35,9 +35,8 @@ interface EventFormData {
   total_capacity: string
   max_tickets_per_user: string
   age_restriction?: string
-  is_featured: boolean
   is_published: boolean
-  requires_approval: boolean
+  
   booking_start_date?: string
   booking_end_date?: string
   tags: string
@@ -61,9 +60,8 @@ const initialFormData: EventFormData = {
   total_capacity: '100',
   max_tickets_per_user: '10',
   age_restriction: '',
-  is_featured: false,
   is_published: false,
-  requires_approval: false,
+  
   booking_start_date: '',
   booking_end_date: '',
   tags: '',
@@ -87,12 +85,17 @@ export function CreateEventClient({ user }: CreateEventClientProps) {
 
     // Auto-generate slug from title
     if (field === 'title' && typeof value === 'string') {
-      const slug = value
+      const baseSlug = value
         .toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '')
         .replace(/\s+/g, '-')
+        .replace(/^-+|-+$/g, '') // Remove leading/trailing dashes
         .trim()
-      
+
+      // Add timestamp to make slug unique
+      const timestamp = Date.now().toString().slice(-6) // Last 6 digits
+      const slug = baseSlug ? `${baseSlug}-${timestamp}` : `event-${timestamp}`
+
       setFormData(prev => ({
         ...prev,
         slug
@@ -196,6 +199,28 @@ export function CreateEventClient({ user }: CreateEventClientProps) {
     return Object.keys(newErrors).length === 0
   }
 
+  const checkSlugUniqueness = async (slug: string): Promise<boolean> => {
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('events')
+        .select('id')
+        .eq('slug', slug)
+        .single()
+
+      if (error && error.code === 'PGRST116') {
+        // No rows found - slug is unique
+        return true
+      }
+
+      // Slug already exists
+      return false
+    } catch (error) {
+      console.error('Error checking slug uniqueness:', error)
+      return true // Assume unique on error to allow form submission
+    }
+  }
+
   const uploadImages = async () => {
     const supabase = createClient()
     let featuredImageUrl: string | null = null
@@ -262,6 +287,18 @@ export function CreateEventClient({ user }: CreateEventClientProps) {
 
     setIsSubmitting(true)
 
+    // Check slug uniqueness before proceeding
+    const isSlugUnique = await checkSlugUniqueness(formData.slug.trim())
+    if (!isSlugUnique) {
+      // Generate a new unique slug by adding random suffix
+      const randomSuffix = Math.random().toString(36).substring(2, 8)
+      const newSlug = `${formData.slug}-${randomSuffix}`
+      setFormData(prev => ({ ...prev, slug: newSlug }))
+
+      // Update formData for current submission
+      formData.slug = newSlug
+    }
+
     try {
       const supabase = createClient()
 
@@ -292,9 +329,8 @@ export function CreateEventClient({ user }: CreateEventClientProps) {
         available_seats: parseInt(formData.total_capacity),
         max_tickets_per_user: parseInt(formData.max_tickets_per_user),
         age_restriction: formData.age_restriction ? parseInt(formData.age_restriction) : null,
-        is_featured: formData.is_featured,
         is_published: formData.is_published,
-        requires_approval: formData.requires_approval,
+       
         booking_start_date: formData.booking_start_date || null,
         booking_end_date: formData.booking_end_date || null,
         featured_image_url: featuredImageUrl,
@@ -317,7 +353,13 @@ export function CreateEventClient({ user }: CreateEventClientProps) {
 
       if (error) {
         console.error('Error creating event:', error)
-        const errorMessage = error.message || 'Failed to create event. Please try again.'
+        let errorMessage = error.message || 'Failed to create event. Please try again.'
+
+        // Handle specific error cases
+        if (error.code === '23505' && error.message.includes('events_slug_key')) {
+          errorMessage = 'This event title generates a slug that already exists. Please modify the title or slug.'
+        }
+
         setErrors({ submit: errorMessage })
         return
       }
@@ -670,12 +712,6 @@ export function CreateEventClient({ user }: CreateEventClientProps) {
             <h2 className="text-lg font-semibold text-gray-900 mb-6">Event Settings</h2>
             
             <div className="space-y-4">
-              <Toggle
-                label="Featured Event"
-                hint="Mark this event as featured to give it more visibility"
-                isSelected={formData.is_featured}
-                onChange={(checked) => handleInputChange('is_featured', checked)}
-              />
 
               <Toggle
                 label="Publish Immediately"
@@ -684,12 +720,7 @@ export function CreateEventClient({ user }: CreateEventClientProps) {
                 onChange={(checked) => handleInputChange('is_published', checked)}
               />
 
-              <Toggle
-                label="Require Approval"
-                hint="Manually approve each booking before confirmation"
-                isSelected={formData.requires_approval}
-                onChange={(checked) => handleInputChange('requires_approval', checked)}
-              />
+              
             </div>
           </div>
 

@@ -93,15 +93,6 @@ export function EventDetailClient({ event, availableSeats }: Props) {
                 <span className="text-gray-500">No image available</span>
               </div>
             )}
-            {event.is_featured && (
-              <Badge 
-                type="pill-color" 
-                color="brand"
-                className="absolute top-4 left-4"
-              >
-                Featured
-              </Badge>
-            )}
           </div>
 
           {/* Event Info */}

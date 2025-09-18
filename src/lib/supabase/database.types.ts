@@ -101,42 +101,6 @@ export type Database = {
           },
         ]
       }
-      event_categories: {
-        Row: {
-          color_hex: string | null
-          created_at: string | null
-          description: string | null
-          icon_name: string | null
-          id: string
-          is_active: boolean | null
-          name: string
-          slug: string
-          sort_order: number | null
-        }
-        Insert: {
-          color_hex?: string | null
-          created_at?: string | null
-          description?: string | null
-          icon_name?: string | null
-          id?: string
-          is_active?: boolean | null
-          name: string
-          slug: string
-          sort_order?: number | null
-        }
-        Update: {
-          color_hex?: string | null
-          created_at?: string | null
-          description?: string | null
-          icon_name?: string | null
-          id?: string
-          is_active?: boolean | null
-          name?: string
-          slug?: string
-          sort_order?: number | null
-        }
-        Relationships: []
-      }
       events: {
         Row: {
           age_restriction: number | null
@@ -144,7 +108,6 @@ export type Database = {
           base_price: number | null
           booking_end_date: string | null
           booking_start_date: string | null
-          category_id: string | null
           created_at: string | null
           currency: string | null
           description: string | null
@@ -152,14 +115,13 @@ export type Database = {
           featured_image_url: string | null
           gallery_urls: string[] | null
           id: string
-          is_featured: boolean | null
           is_published: boolean | null
           latitude: number | null
           longitude: number | null
           max_tickets_per_user: number | null
           meta_description: string | null
           organizer_id: string | null
-          requires_approval: boolean | null
+        
           short_description: string | null
           slug: string | null
           social_share_image_url: string | null
@@ -179,7 +141,6 @@ export type Database = {
           base_price?: number | null
           booking_end_date?: string | null
           booking_start_date?: string | null
-          category_id?: string | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
@@ -187,14 +148,13 @@ export type Database = {
           featured_image_url?: string | null
           gallery_urls?: string[] | null
           id?: string
-          is_featured?: boolean | null
           is_published?: boolean | null
           latitude?: number | null
           longitude?: number | null
           max_tickets_per_user?: number | null
           meta_description?: string | null
           organizer_id?: string | null
-          requires_approval?: boolean | null
+        
           short_description?: string | null
           slug?: string | null
           social_share_image_url?: string | null
@@ -214,7 +174,6 @@ export type Database = {
           base_price?: number | null
           booking_end_date?: string | null
           booking_start_date?: string | null
-          category_id?: string | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
@@ -222,14 +181,13 @@ export type Database = {
           featured_image_url?: string | null
           gallery_urls?: string[] | null
           id?: string
-          is_featured?: boolean | null
           is_published?: boolean | null
           latitude?: number | null
           longitude?: number | null
           max_tickets_per_user?: number | null
           meta_description?: string | null
           organizer_id?: string | null
-          requires_approval?: boolean | null
+        
           short_description?: string | null
           slug?: string | null
           social_share_image_url?: string | null
@@ -244,13 +202,6 @@ export type Database = {
           venue_name?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "events_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "event_categories"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "events_organizer_id_fkey"
             columns: ["organizer_id"]
@@ -310,7 +261,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_user_profile: {
+        Args: {
+          user_email: string
+          user_full_name: string
+          user_id: string
+          user_role: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       booking_status:
@@ -433,6 +392,23 @@ export type Enums<
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {

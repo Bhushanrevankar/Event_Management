@@ -57,10 +57,9 @@ export function EventsListClient({ events, user }: EventsListClientProps) {
       const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.venue_name.toLowerCase().includes(searchTerm.toLowerCase())
       
-      const matchesStatus = statusFilter === 'all' || 
+      const matchesStatus = statusFilter === 'all' ||
         (statusFilter === 'published' && event.is_published) ||
-        (statusFilter === 'draft' && !event.is_published) ||
-        (statusFilter === 'featured' && event.is_featured)
+        (statusFilter === 'draft' && !event.is_published)
       
       return matchesSearch && matchesStatus
     })
@@ -136,8 +135,7 @@ export function EventsListClient({ events, user }: EventsListClientProps) {
               options={[
                 { value: 'all', label: 'All Events' },
                 { value: 'published', label: 'Published' },
-                { value: 'draft', label: 'Drafts' },
-                { value: 'featured', label: 'Featured' }
+                { value: 'draft', label: 'Drafts' }
               ]}
             />
 
@@ -225,9 +223,6 @@ export function EventsListClient({ events, user }: EventsListClientProps) {
                             <p className="text-sm text-gray-600 mt-1">{event.short_description}</p>
                           </div>
                           <div className="flex items-center space-x-2 ml-4">
-                            {event.is_featured && (
-                              <Badge type="pill-color" color="brand">Featured</Badge>
-                            )}
                             {getStatusBadge(event)}
                             <Badge type="pill-color" color={eventStatus.color}>
                               {eventStatus.status.charAt(0).toUpperCase() + eventStatus.status.slice(1)}

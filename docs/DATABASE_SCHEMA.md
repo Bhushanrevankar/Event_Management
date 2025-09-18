@@ -88,8 +88,8 @@ CREATE TABLE events (
   
   -- Event settings
   is_published BOOLEAN DEFAULT FALSE,
-  is_featured BOOLEAN DEFAULT FALSE,
-  requires_approval BOOLEAN DEFAULT FALSE,
+
+
   age_restriction INTEGER, -- Minimum age
   
   -- Booking settings

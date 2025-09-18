@@ -15,7 +15,6 @@ interface Event {
   venue_name: string;
   base_price: number | null;
   currency: string | null;
-  is_featured?: boolean | null;
   slug: string | null;
   category?: {
     name: string;
@@ -74,20 +73,11 @@ export function EventCard({ event, variant = 'default', onClick, className }: Ev
             <span className="text-gray-500">No image</span>
           </div>
         )}
-        {event.is_featured && (
-          <Badge 
-            type="pill-color" 
-            color="brand"
-            className="absolute top-3 left-3"
-          >
-            Featured
-          </Badge>
-        )}
         {event.category && (
-          <Badge 
+          <Badge
             type="pill-color"
             color="gray"
-            className="absolute top-3 right-3"
+            className="absolute top-3 left-3"
           >
             {event.category.name}
           </Badge>

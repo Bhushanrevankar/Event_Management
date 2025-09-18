@@ -368,7 +368,7 @@ Create a new event (Organizer only).
   "booking_end_date": "2024-09-14T23:59:59Z",
   "max_tickets_per_user": 2,
   "age_restriction": null,
-  "requires_approval": false
+
 }
 ```
 

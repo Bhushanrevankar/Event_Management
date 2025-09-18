@@ -1,9 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
 import { LandingPageClient } from './landing-page-client'
 import { MainLayout } from '@/components/layout/main-layout'
-import type { Tables } from '@/lib/supabase/database.types'
-
-type Event = Tables<'events'>
 
 // Hardcoded categories for landing page
 const categories = [
@@ -17,32 +13,11 @@ const categories = [
   { id: '8', name: 'Education', slug: 'education', description: 'Workshops, classes, and educational seminars' }
 ]
 
-async function getFeaturedEvents(): Promise<Event[]> {
-  const supabase = await createClient()
-  
-  const { data, error } = await supabase
-    .from('events')
-    .select('*')
-    .eq('is_published', true)
-    .eq('is_featured', true)
-    .order('created_at', { ascending: false })
-    .limit(6)
 
-  if (error) {
-    console.error('Error fetching featured events:', error)
-    return []
-  }
-
-  return data || []
-}
-
-export default async function LandingPage() {
-  const featuredEvents = await getFeaturedEvents()
-  
+export default function LandingPage() {
   return (
     <MainLayout>
-      <LandingPageClient 
-        featuredEvents={featuredEvents}
+      <LandingPageClient
         categories={categories}
       />
     </MainLayout>

@@ -14,7 +14,6 @@ interface Event {
   venue_name: string;
   base_price: number | null;
   currency: string | null;
-  is_featured?: boolean | null;
   slug: string | null;
   category?: {
     name: string;
