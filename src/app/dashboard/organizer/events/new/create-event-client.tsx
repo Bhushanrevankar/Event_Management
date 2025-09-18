@@ -117,12 +117,26 @@ export function CreateEventClient({ user }: CreateEventClientProps) {
     
     if (address) {
       setSelectedAddress(address)
-      // If venue address is empty, auto-fill it with the selected address
+      
+      // Auto-fill venue address if it's empty or if user wants to replace it
       if (!formData.venue_address.trim()) {
         setFormData(prev => ({
           ...prev,
           venue_address: address
         }))
+      }
+      
+      // Optional: Ask user if they want to update the venue address
+      if (formData.venue_address.trim() && formData.venue_address !== address) {
+        const shouldUpdate = window.confirm(
+          'Do you want to update the venue address with the selected location?'
+        )
+        if (shouldUpdate) {
+          setFormData(prev => ({
+            ...prev,
+            venue_address: address
+          }))
+        }
       }
     }
 
@@ -148,6 +162,12 @@ export function CreateEventClient({ user }: CreateEventClientProps) {
     if (!formData.end_date) newErrors.end_date = 'End date is required'
     if (!formData.venue_name.trim()) newErrors.venue_name = 'Venue name is required'
     if (!formData.venue_address.trim()) newErrors.venue_address = 'Venue address is required'
+
+    // Location validation
+    if (!formData.latitude || !formData.longitude) {
+      newErrors.latitude = 'Please select a location on the map'
+      newErrors.longitude = 'Please select a location on the map'
+    }
 
     // Date validation
     if (formData.start_date && formData.end_date) {
@@ -479,51 +499,78 @@ export function CreateEventClient({ user }: CreateEventClientProps) {
           <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-6">Venue Information</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input
-                label="Venue Name"
-                value={formData.venue_name}
-                onChange={(value) => handleInputChange('venue_name', value)}
-                isInvalid={!!errors.venue_name}
-                hint={errors.venue_name}
-                placeholder="Convention Center, Hotel Name, etc."
-                isRequired
-              />
+            <div className="space-y-6">
+              {/* Venue Name */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Input
+                  label="Venue Name"
+                  value={formData.venue_name}
+                  onChange={(value) => handleInputChange('venue_name', value)}
+                  isInvalid={!!errors.venue_name}
+                  hint={errors.venue_name}
+                  placeholder="Convention Center, Hotel Name, etc."
+                  isRequired
+                />
 
-              <div className="md:col-span-1" />
-
-              <div className="md:col-span-2">
-                <TextArea
-                  label="Venue Address"
+                <Input
+                  label="Venue Address (Manual Entry)"
                   value={formData.venue_address}
                   onChange={(value) => handleInputChange('venue_address', value)}
                   isInvalid={!!errors.venue_address}
-                  hint={errors.venue_address}
+                  hint={errors.venue_address || "This will be auto-filled when you select a location on the map"}
                   placeholder="Complete address with city, state, and postal code"
-                  rows={3}
                   isRequired
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Event Location
-                </label>
-                <p className="text-sm text-gray-600 mb-4">
-                  Click on the map to pinpoint the exact location of your event
-                </p>
+              {/* Location Picker */}
+              <div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Event Location *
+                  </label>
+                  <p className="text-sm text-gray-600">
+                    Search for your venue or click on the map to pinpoint the exact location
+                  </p>
+                </div>
+
                 <LocationPickerMap
                   onLocationSelect={handleLocationSelect}
                   initialLat={formData.latitude ? parseFloat(formData.latitude) : 19.0760}
                   initialLng={formData.longitude ? parseFloat(formData.longitude) : 72.8777}
-                  height="350px"
+                  height="400px"
+                  searchPlaceholder="Search for venue address..."
+                  showSearchBox={true}
+                  showCurrentLocationButton={true}
                 />
-                {selectedAddress && (
-                  <div className="mt-2 text-sm text-gray-600">
-                    <strong>Selected:</strong> {selectedAddress}
+
+                {/* Location validation error */}
+                {(errors.latitude || errors.longitude) && (
+                  <div className="mt-2 flex items-center space-x-2 text-sm text-red-600">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>Please select a location on the map</span>
                   </div>
                 )}
               </div>
+
+              {/* Hidden coordinate inputs for form submission */}
+              <input
+                type="hidden"
+                name="latitude"
+                value={formData.latitude || ''}
+              />
+              <input
+                type="hidden"
+                name="longitude"
+                value={formData.longitude || ''}
+              />
+
+              {/* Optional: Display coordinates for debugging */}
+              {formData.latitude && formData.longitude && (
+                <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+                  Debug: Coordinates - {formData.latitude}, {formData.longitude}
+                </div>
+              )}
             </div>
           </div>
 
