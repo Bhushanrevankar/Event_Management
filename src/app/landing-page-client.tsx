@@ -7,6 +7,7 @@ import { FeaturedIcon } from '@/components/foundations/featured-icon/featured-ic
 import { SearchMd, ArrowRight, Calendar } from '@untitledui/icons'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
+import { useProfile } from '@/hooks/use-profile'
 // Dynamically import map component to avoid SSR issues
 const NearbyEventsMap = dynamic(
   () => import('@/components/events/nearby-events-map').then(mod => ({ default: mod.NearbyEventsMap })),
@@ -28,6 +29,23 @@ interface Props {
 }
 
 export function LandingPageClient({ categories }: Props) {
+  const { profile, loading, isOrganizer } = useProfile();
+
+  // Determine the correct URL for "Start Organizing" button
+  const getStartOrganizerUrl = () => {
+    if (loading) return '#'; // Show loading state
+    if (isOrganizer) return '/dashboard/organizer'; // Redirect to organizer dashboard
+    if (profile) return '/dashboard'; // User is signed in but not an organizer
+    return '/auth/signup'; // User not signed in
+  };
+
+  const getStartOrganizerText = () => {
+    if (loading) return 'Loading...';
+    if (isOrganizer) return 'Go to Dashboard';
+    if (profile) return 'Become Organizer';
+    return 'Start Organizing';
+  };
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -153,8 +171,14 @@ export function LandingPageClient({ categories }: Props) {
             Join thousands of organizers who trust our platform to create and manage successful events
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" color="secondary" href="/auth/signup" iconTrailing={ArrowRight}>
-              Start Organizing
+            <Button
+              size="lg"
+              color="secondary"
+              href={getStartOrganizerUrl()}
+              iconTrailing={ArrowRight}
+              disabled={loading}
+            >
+              {getStartOrganizerText()}
             </Button>
             <Button size="lg" color="tertiary" href="/events" className="text-white border-white hover:bg-white hover:text-primary-600">
               Browse More Events
