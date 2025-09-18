@@ -8,6 +8,7 @@ import { SearchMd, ArrowRight, Calendar } from '@untitledui/icons'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { useProfile } from '@/hooks/use-profile'
+import { RecentEventsSection } from '@/components/events/recent-events-section'
 // Dynamically import map component to avoid SSR issues
 const NearbyEventsMap = dynamic(
   () => import('@/components/events/nearby-events-map').then(mod => ({ default: mod.NearbyEventsMap })),
@@ -133,8 +134,11 @@ export function LandingPageClient({ categories }: Props) {
         </div>
       </section>
 
+      {/* Recent Events Section */}
+      <RecentEventsSection />
+
       {/* Nearby Events Map Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-display-sm font-bold mb-4 text-gray-900">
@@ -160,7 +164,6 @@ export function LandingPageClient({ categories }: Props) {
         </div>
       </section>
 
-      
       {/* Call to Action Section */}
       <section className="py-20 bg-gradient-to-r from-gray-400 to-gray-300">
         <div className="max-w-4xl mx-auto px-4 text-center text-white">
