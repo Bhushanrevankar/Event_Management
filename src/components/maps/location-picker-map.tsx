@@ -118,11 +118,14 @@ export function LocationPickerMap({
 
   useEffect(() => {
     setIsClient(true)
-    
-    // Load Leaflet CSS
+
+    // Load Leaflet CSS dynamically
     if (typeof window !== 'undefined') {
-      import('leaflet/dist/leaflet.css')
-      
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
+      document.head.appendChild(link)
+
       // Fix for default markers in react-leaflet
       import('leaflet').then((L) => {
         delete (L.Icon.Default.prototype as any)._getIconUrl
