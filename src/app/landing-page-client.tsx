@@ -10,8 +10,8 @@ import dynamic from 'next/dynamic'
 import { useProfile } from '@/hooks/use-profile'
 import { RecentEventsSection } from '@/components/events/recent-events-section'
 // Dynamically import map component to avoid SSR issues
-const NearbyEventsMap = dynamic(
-  () => import('@/components/events/nearby-events-map').then(mod => ({ default: mod.NearbyEventsMap })),
+const EventsMap = dynamic(
+  () => import('@/components/events/nearby-events-map').then(mod => ({ default: mod.EventsMap })),
   {
     ssr: false,
     loading: () => <div className="h-96 bg-gray-100 rounded-lg animate-pulse flex items-center justify-center">Loading map...</div>
@@ -137,20 +137,20 @@ export function LandingPageClient({ categories }: Props) {
       {/* Recent Events Section */}
       <RecentEventsSection />
 
-      {/* Nearby Events Map Section */}
+      {/* Events Map Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-display-sm font-bold mb-4 text-gray-900">
-              Events Near You
+              Explore All Events
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Discover exciting events happening around your location on our interactive map
+              Discover exciting events happening across all locations on our interactive map
             </p>
           </div>
           
           <div className="bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
-            <NearbyEventsMap
+            <EventsMap
               initialEvents={[]}
               className="h-96 md:h-[500px]"
             />
