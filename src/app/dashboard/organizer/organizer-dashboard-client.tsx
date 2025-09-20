@@ -1,10 +1,13 @@
 'use client'
 
-import { Calendar, Ticket02, CurrencyRupee, TrendUp01, Plus } from "@untitledui/icons"
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Calendar, Ticket02, CurrencyRupee, TrendUp01, Plus, Upload04 } from "@untitledui/icons"
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { StatsCard } from '@/components/dashboard/stats-card'
 import { Button } from '@/components/base/buttons/button'
 import { Badge } from '@/components/base/badges/badges'
+import { publishEvent } from '@/lib/events'
 import type { Tables } from '@/lib/supabase/database.types'
 import type { User } from '@supabase/supabase-js'
 
@@ -26,10 +29,13 @@ interface Props {
 }
 
 export function OrganizerDashboardClient({ events, stats, user }: Props) {
+  const router = useRouter()
+  const [publishingEvents, setPublishingEvents] = useState<Set<string>>(new Set())
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
       day: 'numeric'
     })
   }
@@ -43,6 +49,30 @@ export function OrganizerDashboardClient({ events, stats, user }: Props) {
       return `${Math.floor(diffInHours)}h ago`
     } else {
       return `${Math.floor(diffInHours / 24)}d ago`
+    }
+  }
+
+  const handlePublishEvent = async (eventId: string) => {
+    setPublishingEvents(prev => new Set(prev).add(eventId))
+
+    try {
+      const result = await publishEvent(eventId)
+
+      if (result.success) {
+        // Refresh the page to show updated status
+        router.refresh()
+      } else {
+        alert(`Error: ${result.error}`)
+      }
+    } catch (error) {
+      console.error('Error publishing event:', error)
+      alert('An unexpected error occurred. Please try again.')
+    } finally {
+      setPublishingEvents(prev => {
+        const updated = new Set(prev)
+        updated.delete(eventId)
+        return updated
+      })
     }
   }
 
@@ -204,12 +234,25 @@ export function OrganizerDashboardClient({ events, stats, user }: Props) {
                         </div>
                       </div>
                       <div className="text-right space-y-1">
-                        <Badge
-                          type="pill-color"
-                          color={event.is_published ? 'success' : 'warning'}
-                        >
-                          {event.is_published ? 'Published' : 'Draft'}
-                        </Badge>
+                        <div className="flex items-center space-x-2">
+                          <Badge
+                            type="pill-color"
+                            color={event.is_published ? 'success' : 'warning'}
+                          >
+                            {event.is_published ? 'Published' : 'Draft'}
+                          </Badge>
+                          {!event.is_published && (
+                            <Button
+                              size="sm"
+                              color="primary"
+                              iconLeading={Upload04}
+                              onClick={() => handlePublishEvent(event.id)}
+                              disabled={publishingEvents.has(event.id)}
+                            >
+                              {publishingEvents.has(event.id) ? 'Publishing...' : 'Publish'}
+                            </Button>
+                          )}
+                        </div>
                         <div className="text-xs text-gray-600">
                           {event.bookings || 0} bookings
                         </div>

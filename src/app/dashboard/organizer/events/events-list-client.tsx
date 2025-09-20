@@ -1,22 +1,26 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
 import { Button } from '@/components/base/buttons/button'
 import { Input } from '@/components/base/input/input'
 import { NativeSelect } from '@/components/base/select/select-native'
 import { Badge } from '@/components/base/badges/badges'
-import { 
-  Plus, 
+import {
+  Plus,
   SearchMd,
   Calendar,
   Ticket02,
   CurrencyRupee,
   Eye,
   Edit03,
-  DotsHorizontal
+  DotsHorizontal,
+  Upload04,
+  DownloadCloud01
 } from '@untitledui/icons'
 import { FeaturedIcon } from '@/components/foundations/featured-icon/featured-icons'
+import { publishEvent, unpublishEvent, canEventBePublished } from '@/lib/events'
 import type { Tables } from '@/lib/supabase/database.types'
 import type { User } from '@supabase/supabase-js'
 
@@ -31,9 +35,11 @@ interface EventsListClientProps {
 }
 
 export function EventsListClient({ events, user }: EventsListClientProps) {
+  const router = useRouter()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [sortBy, setSortBy] = useState('created_at')
+  const [publishingEvents, setPublishingEvents] = useState<Set<string>>(new Set())
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -92,10 +98,37 @@ export function EventsListClient({ events, user }: EventsListClientProps) {
     const endDate = new Date(event.end_date)
 
     if (now < startDate) {
-      return { status: 'upcoming', color: 'blue' as const }    } else if (now >= startDate && now <= endDate) {
+      return { status: 'upcoming', color: 'blue' as const }
+    } else if (now >= startDate && now <= endDate) {
       return { status: 'ongoing', color: 'success' as const }
     } else {
       return { status: 'completed', color: 'gray' as const }
+    }
+  }
+
+  const handlePublishEvent = async (eventId: string, currentlyPublished: boolean) => {
+    setPublishingEvents(prev => new Set(prev).add(eventId))
+
+    try {
+      const result = currentlyPublished
+        ? await unpublishEvent(eventId)
+        : await publishEvent(eventId)
+
+      if (result.success) {
+        // Refresh the page to show updated status
+        router.refresh()
+      } else {
+        alert(`Error: ${result.error}`)
+      }
+    } catch (error) {
+      console.error('Error updating event publication status:', error)
+      alert('An unexpected error occurred. Please try again.')
+    } finally {
+      setPublishingEvents(prev => {
+        const updated = new Set(prev)
+        updated.delete(eventId)
+        return updated
+      })
     }
   }
 
@@ -267,6 +300,23 @@ export function EventsListClient({ events, user }: EventsListClientProps) {
                       >
                         Edit
                       </Button>
+
+                      {/* Publish/Unpublish Button */}
+                      <Button
+                        size="sm"
+                        color={event.is_published ? 'tertiary' : 'primary'}
+                        iconLeading={event.is_published ? DownloadCloud01 : Upload04}
+                        onClick={() => handlePublishEvent(event.id, event.is_published || false)}
+                        disabled={publishingEvents.has(event.id)}
+                      >
+                        {publishingEvents.has(event.id)
+                          ? 'Updating...'
+                          : event.is_published
+                            ? 'Unpublish'
+                            : 'Publish'
+                        }
+                      </Button>
+
                       <Button
                         size="sm"
                         color="tertiary"
