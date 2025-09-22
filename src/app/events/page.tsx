@@ -27,10 +27,6 @@ async function getEvents(searchParams: Record<string, string>): Promise<{
     query = query.or(`title.ilike.%${searchParams.search}%,short_description.ilike.%${searchParams.search}%`)
   }
 
-  if (searchParams.category) {
-    // Filter by tags instead of categories
-    query = query.contains('tags', [searchParams.category])
-  }
 
   if (searchParams.location) {
     query = query.or(`venue_name.ilike.%${searchParams.location}%,venue_address.ilike.%${searchParams.location}%`)
@@ -73,19 +69,6 @@ async function getEvents(searchParams: Record<string, string>): Promise<{
   }
 }
 
-// Use hardcoded categories since event_categories table was removed
-function getCategories() {
-  return [
-    { id: '1', name: 'Technology', slug: 'technology', description: 'Tech conferences, workshops, and meetups', is_active: true, sort_order: 1, created_at: '', updated_at: '' },
-    { id: '2', name: 'Music', slug: 'music', description: 'Concerts, festivals, and live music events', is_active: true, sort_order: 2, created_at: '', updated_at: '' },
-    { id: '3', name: 'Sports', slug: 'sports', description: 'Sports events, tournaments, and fitness activities', is_active: true, sort_order: 3, created_at: '', updated_at: '' },
-    { id: '4', name: 'Arts & Culture', slug: 'arts-culture', description: 'Art exhibitions, theater shows, and cultural events', is_active: true, sort_order: 4, created_at: '', updated_at: '' },
-    { id: '5', name: 'Food & Drink', slug: 'food-drink', description: 'Food festivals, wine tastings, and culinary events', is_active: true, sort_order: 5, created_at: '', updated_at: '' },
-    { id: '6', name: 'Business', slug: 'business', description: 'Professional conferences, networking, and seminars', is_active: true, sort_order: 6, created_at: '', updated_at: '' },
-    { id: '7', name: 'Health & Wellness', slug: 'health-wellness', description: 'Yoga, meditation, and wellness workshops', is_active: true, sort_order: 7, created_at: '', updated_at: '' },
-    { id: '8', name: 'Education', slug: 'education', description: 'Workshops, classes, and educational seminars', is_active: true, sort_order: 8, created_at: '', updated_at: '' }
-  ]
-}
 
 interface EventsPageProps {
   searchParams: Promise<Record<string, string>>
@@ -95,15 +78,13 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   const resolvedSearchParams = await searchParams
   
   const eventsData = await getEvents(resolvedSearchParams)
-  const categories = getCategories()
 
   return (
     <MainLayout>
       <Suspense fallback={<div>Loading...</div>}>
-        <EventsPageClient 
+        <EventsPageClient
           initialEvents={eventsData.events}
           initialTotal={eventsData.total}
-          categories={categories}
           searchParams={resolvedSearchParams}
         />
       </Suspense>

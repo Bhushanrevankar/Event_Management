@@ -12,34 +12,21 @@ type EventWithProfiles = Tables<'events'> & {
   profiles: Tables<'profiles'> | null
 }
 
-type Category = {
-  id: string
-  name: string
-  slug: string
-  description: string
-  is_active: boolean
-  sort_order: number
-  created_at: string
-  updated_at: string
-}
 
 interface EventsPageClientProps {
   initialEvents: EventWithProfiles[]
   initialTotal: number
-  categories: Category[]
   searchParams: Record<string, string>
 }
 
 export function EventsPageClient({
   initialEvents,
   initialTotal,
-  categories,
   searchParams
 }: EventsPageClientProps) {
   const router = useRouter()
   const [filters, setFilters] = useState({
     search: searchParams.search || '',
-    category: searchParams.category || '',
     location: searchParams.location || '',
     priceMin: searchParams.priceMin ? parseInt(searchParams.priceMin) : 0,
     priceMax: searchParams.priceMax ? parseInt(searchParams.priceMax) : 10000
@@ -76,7 +63,6 @@ export function EventsPageClient({
   const clearFilters = () => {
     setFilters({
       search: '',
-      category: '',
       location: '',
       priceMin: 0,
       priceMax: 10000
@@ -87,10 +73,6 @@ export function EventsPageClient({
   // Transform events for EventList component
   const transformedEvents = initialEvents.map(event => ({
     ...event,
-    category: event.tags && event.tags.length > 0 ? {
-      name: event.tags[0],
-      color_hex: '#6366f1'
-    } : null,
     organizer: event.profiles ? {
       full_name: event.profiles.full_name,
       avatar_url: event.profiles.avatar_url
@@ -105,10 +87,6 @@ export function EventsPageClient({
     hasPrev: false
   }
 
-  const categoryOptions = [
-    { id: '', label: 'All Categories' },
-    ...categories.map(cat => ({ id: cat.slug, label: cat.name }))
-  ]
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -148,23 +126,6 @@ export function EventsPageClient({
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Category
-                </label>
-                <Select 
-                  selectedKey={filters.category || null} 
-                  onSelectionChange={(value) => handleFilterChange('category', value || '')}
-                  placeholder="All Categories"
-                  items={categoryOptions}
-                >
-                  {(item) => (
-                    <Select.Item key={item.id} id={item.id}>
-                      {item.label}
-                    </Select.Item>
-                  )}
-                </Select>
-              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">

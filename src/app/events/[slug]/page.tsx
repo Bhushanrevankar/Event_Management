@@ -65,10 +65,6 @@ export default async function EventDetailPage({ params }: Props) {
   // Transform event for client component
   const transformedEvent = {
     ...event,
-    category: event.tags && event.tags.length > 0 ? {
-      name: event.tags[0],
-      color_hex: '#6366f1'
-    } : null,
     organizer: event.profiles ? {
       full_name: event.profiles.full_name,
       avatar_url: event.profiles.avatar_url,

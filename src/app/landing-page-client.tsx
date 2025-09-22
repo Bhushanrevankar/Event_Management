@@ -1,11 +1,8 @@
 'use client'
 
-import { Badge } from '@/components/base/badges/badges'
 import { Button } from '@/components/base/buttons/button'
 import { Input } from '@/components/base/input/input'
-import { FeaturedIcon } from '@/components/foundations/featured-icon/featured-icons'
-import { SearchMd, ArrowRight, Calendar } from '@untitledui/icons'
-import Link from 'next/link'
+import { SearchMd, ArrowRight } from '@untitledui/icons'
 import dynamic from 'next/dynamic'
 import { useProfile } from '@/hooks/use-profile'
 import { RecentEventsSection } from '@/components/events/recent-events-section'
@@ -18,18 +15,7 @@ const EventsMap = dynamic(
   }
 )
 
-type Category = {
-  id: string
-  name: string
-  slug: string
-  description: string
-}
-
-interface Props {
-  categories: Category[]
-}
-
-export function LandingPageClient({ categories }: Props) {
+export function LandingPageClient() {
   const { profile, loading, isOrganizer } = useProfile();
 
   // Determine the correct URL for "Start Organizing" button
@@ -83,8 +69,8 @@ export function LandingPageClient({ categories }: Props) {
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-16 text-center">
               <div>
-                <div className="text-3xl font-bold mb-1">{categories.length}</div>
-                <div className="text-primary-200 text-sm uppercase tracking-wide">Categories</div>
+                <div className="text-3xl font-bold mb-1">500+</div>
+                <div className="text-primary-200 text-sm uppercase tracking-wide">Active Events</div>
               </div>
               <div>
                 <div className="text-3xl font-bold mb-1">1000+</div>
@@ -95,44 +81,6 @@ export function LandingPageClient({ categories }: Props) {
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-display-sm font-bold mb-4 text-gray-900">
-              Explore Event Categories
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Discover events that match your interests and passions
-            </p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                href={`/events?category=${category.slug}`}
-                className="group p-6 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-primary-300"
-              >
-                <div className="text-center">
-                  <div className="mx-auto mb-3">
-                    <FeaturedIcon 
-                      color="gray" 
-                      theme="modern" 
-                      size="md" 
-                      className="mx-auto"
-                    >
-                      <Calendar className="w-6 h-6" />
-                    </FeaturedIcon>
-                  </div>
-                  <h3 className="font-medium text-gray-900 group-hover:text-primary-600 transition-colors">
-                    {category.name}
-                  </h3>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Recent Events Section */}
       <RecentEventsSection />

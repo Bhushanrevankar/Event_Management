@@ -21,10 +21,6 @@ interface Event {
   total_capacity: number;
   max_tickets_per_user: number | null;
   age_restriction?: number | null;
-  category: {
-    name: string;
-    color_hex: string;
-  } | null;
   organizer: {
     full_name: string | null;
     avatar_url: string | null;
@@ -98,14 +94,6 @@ export function EventDetailClient({ event, availableSeats }: Props) {
           {/* Event Info */}
           <div className="mb-6">
             <div className="flex items-center gap-4 mb-4">
-              {event.category && (
-                <Badge 
-                  type="pill-color"
-                  color="brand"
-                >
-                  {event.category.name}
-                </Badge>
-              )}
               <span className="text-sm text-gray-500">
                 {formatDate(event.start_date)}
               </span>
