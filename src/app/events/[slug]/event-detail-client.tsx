@@ -16,7 +16,6 @@ interface Event {
   venue_address: string;
   base_price: number | null;
   currency: string | null;
-  is_featured: boolean | null;
   slug: string | null;
   total_capacity: number;
   max_tickets_per_user: number | null;
