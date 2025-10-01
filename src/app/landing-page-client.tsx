@@ -16,22 +16,7 @@ const EventsMap = dynamic(
 )
 
 export function LandingPageClient() {
-  const { profile, loading, isOrganizer } = useProfile();
-
-  // Determine the correct URL for "Start Organizing" button
-  const getStartOrganizerUrl = () => {
-    if (loading) return '#'; // Show loading state
-    if (isOrganizer) return '/dashboard/organizer'; // Redirect to organizer dashboard
-    if (profile) return '/dashboard'; // User is signed in but not an organizer
-    return '/auth/signup'; // User not signed in
-  };
-
-  const getStartOrganizerText = () => {
-    if (loading) return 'Loading...';
-    if (isOrganizer) return 'Go to Dashboard';
-    if (profile) return 'Become Organizer';
-    return 'Start Organizing';
-  };
+ 
 
   return (
     <div className="min-h-screen">
@@ -122,15 +107,7 @@ export function LandingPageClient() {
             Join thousands of organizers who trust our platform to create and manage successful events
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              color="secondary"
-              href={getStartOrganizerUrl()}
-              iconTrailing={ArrowRight}
-              disabled={loading}
-            >
-              {getStartOrganizerText()}
-            </Button>
+           
             <Button size="lg" color="tertiary" href="/events" className="text-white border-white hover:bg-white hover:text-primary-600">
               Browse More Events
             </Button>

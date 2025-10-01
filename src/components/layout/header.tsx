@@ -4,8 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import { Menu01, X, User01, LogOut01, Settings01 } from '@untitledui/icons';
 import { Button } from '@/components/base/buttons/button';
 import { UntitledLogo } from '@/components/foundations/logo/untitledui-logo';
-import { useAuth } from '@/hooks/use-auth';
-import { useProfile } from '@/hooks/use-profile';
 import { cx } from '@/utils/cx';
 
 interface HeaderProps {
@@ -15,14 +13,11 @@ interface HeaderProps {
 export function Header({ showAuthButtons = true }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const { user, isAuthenticated, signOut, loading } = useAuth();
-  const { profile, isOrganizer } = useProfile();
+  
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Default to attendee dashboard - let users choose their intent
-  const getDashboardUrl = () => {
-    return '/dashboard/attendee';
-  };
+  
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -44,11 +39,7 @@ export function Header({ showAuthButtons = true }: HeaderProps) {
     { name: 'Contact', href: '/contact' },
   ];
 
-  const handleSignOut = async () => {
-    await signOut();
-    setUserMenuOpen(false);
-    window.location.href = '/'; // Redirect to homepage after sign out
-  };
+
 
   return (
     <header className="bg-white shadow-sm">
@@ -71,74 +62,8 @@ export function Header({ showAuthButtons = true }: HeaderProps) {
             </div>
           </div>
 
-          {showAuthButtons && !loading && (
-            <div className="ml-10 hidden lg:flex">
-              {isAuthenticated ? (
-                <div className="relative" ref={userMenuRef}>
-                  <button
-                    type="button"
-                    className="flex items-center space-x-2 text-gray-700 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-md px-3 py-2"
-                    onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  >
-                    <User01 className="h-5 w-5" />
-                    <span className="text-sm font-medium">
-                      {user?.user_metadata?.full_name || user?.email || 'User'}
-                    </span>
-                  </button>
-                  
-                  {userMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
-                      <a
-                        href={getDashboardUrl()}
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <Settings01 className="h-4 w-4" />
-                          <span>My Dashboard</span>
-                        </div>
-                      </a>
-                      {isOrganizer && (
-                        <a
-                          href="/dashboard/organizer"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <Settings01 className="h-4 w-4" />
-                            <span>Organizer Panel</span>
-                          </div>
-                        </a>
-                      )}
-                      <button
-                        onClick={handleSignOut}
-                        className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <LogOut01 className="h-4 w-4" />
-                          <span>Sign out</span>
-                        </div>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="space-x-4 flex">
-                  <Button
-                    color="secondary"
-                    href="/auth/signin"
-                    size="md"
-                  >
-                    Sign in
-                  </Button>
-                  <Button
-                    href="/auth/signup"
-                    size="md"
-                  >
-                    Sign up
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
+          
+          
 
           <div className="ml-10 lg:hidden">
             <button
@@ -171,56 +96,7 @@ export function Header({ showAuthButtons = true }: HeaderProps) {
                 {link.name}
               </a>
             ))}
-            {showAuthButtons && !loading && (
-              <div className="mt-4 px-3">
-                {isAuthenticated ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700">
-                      <User01 className="h-4 w-4" />
-                      <span>{user?.user_metadata?.full_name || user?.email || 'User'}</span>
-                    </div>
-                    <a
-                      href={getDashboardUrl()}
-                      className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-primary-600"
-                    >
-                      My Dashboard
-                    </a>
-                    {isOrganizer && (
-                      <a
-                        href="/dashboard/organizer"
-                        className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-primary-600"
-                      >
-                        Organizer Panel
-                      </a>
-                    )}
-                    <button
-                      onClick={handleSignOut}
-                      className="w-full text-left block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-primary-600"
-                    >
-                      Sign out
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <Button
-                      color="secondary"
-                      href="/auth/signin"
-                      size="md"
-                      className="w-full"
-                    >
-                      Sign in
-                    </Button>
-                    <Button
-                      href="/auth/signup"
-                      size="md"
-                      className="w-full"
-                    >
-                      Sign up
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
+            
           </div>
         </div>
       </nav>
