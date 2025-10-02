@@ -25,7 +25,7 @@ export function RecentEventsSection() {
           .from('events')
           .select(`
             *,
-            profiles (*)
+            profiles:organizer_id (*)
           `)
           .eq('is_published', true)
           .gte('start_date', new Date().toISOString()) // Only future events
